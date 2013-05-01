@@ -4,7 +4,7 @@
 window.onload = function() {
     var zoomSlider = document.getElementById( "zoomSlider" );
     defaultZoom = zoomSlider.value;
-    
+
     /* prevent the search from submitting */
     var form = document.getElementById( 'searchForm' );
     if ( form.attachEvent ) {
@@ -14,6 +14,14 @@ window.onload = function() {
     }
 
     fetchData();
+
+    var aArray = document.getElementsByClassName( "categoryLink" );
+    for ( var i = 0, len = aArray.length; i < len; i++ ) {
+        aArray[i].onclick = function() {
+            showCategoryThumbs(unescape( this.getAttribute('data-category')) );
+            return false;
+        }
+    }
 };
 
 /**

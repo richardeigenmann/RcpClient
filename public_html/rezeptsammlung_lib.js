@@ -30,15 +30,15 @@ function fetchData() {
             logStatus( "We have the recpies cached, but checking if there are any new ones..." );
             logStatus( "Connecting to: " + enumerationUrl + "?startfrom=" + lastFetch );
             var request = new XMLHttpRequest();
-            request.open( "GET", enumerationUrl +"?startfrom=" + lastFetch );
+            request.open( "GET", enumerationUrl + "?startfrom=" + lastFetch );
             request.onload = function() {
                 if ( request.status == 200 ) {
                     //console.log( "Response: " + request.responseText );
                     if ( request.responseText != "null" ) {
                         logStatus( "New recipes found. Wiping local store..." );
                         // removeItem is better because otherwise we remove all data for the domain name
-                        localStorage.removeItem("rcpLastFetch");
-                        localStorage.removeItem("rcpArray");
+                        localStorage.removeItem( "rcpLastFetch" );
+                        localStorage.removeItem( "rcpArray" );
                         fullFetch();
                     }
                 }
@@ -165,32 +165,45 @@ function renderList( targetDiv ) {
     for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
         var category = sortedCategories[i];
         var escapedCategory = escape( category );
-        quickIndex += "<a href=\"#" + escapedCategory + "\">" + category + "</a><br>";
+        quickIndex += "<a class=\"categoryLink\" data-category=\"" + escapedCategory + "\"  href=\"#\">" + category + "</a><br>";
     }
 
 
-    var list = quickIndex + "<p>";
-    for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
-        var escapedCategory = escape( sortedCategories[i] );
-        list += "<h3 id=\"" + escapedCategory + "\">" + sortedCategories[i] + "</h3>";
-
-        var sortedRecipes = [];
-        for ( var j = 0, lenj = index["Speise-Kategorie"][sortedCategories[i]].length; j < lenj; j++ ) {
-            var rcpKey = index["Speise-Kategorie"][sortedCategories[i]][j];
-            recipe = rcpArray[rcpKey];
-            sortedRecipes.push( recipe );
-        }
-        sortedRecipes.sort( recipeCompare );
-
-        for ( var k = 0, lenk = sortedRecipes.length; k < lenj; k++ ) {
-            list += "<a href=\"" + recipesRoot + sortedRecipes[k].filename + "\">" + sortedRecipes[k].name + "</a><br>";
-        }
-
-    }
-    targetDiv.innerHTML = list;
-
+    /*var list = quickIndex + "<p>";
+     for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
+     var escapedCategory = escape( sortedCategories[i] );
+     list += "<h3 id=\"" + escapedCategory + "\">" + sortedCategories[i] + "</h3>";
+     
+     var sortedRecipes = [];
+     for ( var j = 0, lenj = index["Speise-Kategorie"][sortedCategories[i]].length; j < lenj; j++ ) {
+     var rcpKey = index["Speise-Kategorie"][sortedCategories[i]][j];
+     recipe = rcpArray[rcpKey];
+     sortedRecipes.push( recipe );
+     }
+     sortedRecipes.sort( recipeCompare );
+     
+     for ( var k = 0, lenk = sortedRecipes.length; k < lenj; k++ ) {
+     list += "<a href=\"" + recipesRoot + sortedRecipes[k].filename + "\">" + sortedRecipes[k].name + "</a><br>";
+     }
+     
+     }*/
+    targetDiv.innerHTML = quickIndex;
 }
 
+/**
+ * This method handles the user's click on a category and shows the associated thums.
+ * @returns {undefined}
+ */
+function showCategoryThumbs( category ) {
+    var categoryRecipes = index["Speise-Kategorie"];
+    var recipeNameArray = categoryRecipes[category];  // returns an array of strings i.e. "Rcp001.htm", "Rcp002.htm"
+    var recipesArray = [];
+    for ( var i = 0, len = recipeNameArray.length; i < len; i++ ) {
+        recipesArray.push( rcpArray[recipeNameArray[i]] );
+    }
+    clearThumbnailPanel();
+    renderThumbsArray( recipesArray, document.getElementById( "rightPanel" ) );
+}
 
 
 function recipeCompare( a, b ) {
@@ -405,7 +418,7 @@ function doSearch() {
     logStatus( "Found: " + uniqSortedSearchResults.length + " " + alsoFoundText );
 
     clearThumbnailPanel();
-    renderThumbsArray( uniqSortedSearchResults, document.getElementById( "rightPanel" ));
+    renderThumbsArray( uniqSortedSearchResults, document.getElementById( "rightPanel" ) );
 }
 
 
