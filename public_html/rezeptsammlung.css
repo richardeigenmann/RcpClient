@@ -1,0 +1,137 @@
+body {
+    font-family: sans-serif;
+}
+
+#header {
+    /* I want a fixed header that doesn't scroll */
+    position: fixed;
+    top: 0;
+    height: 83px;
+    left: 0;
+    right: 0;
+
+    /* The panel underneath will scroll under the image */
+    z-index: 2;
+    opacity: 0.85;
+
+    /* show a background picture that tapers off to the right to the background color */
+    background: #2c3638;
+    background-image: url('rezeptsammlung_logo.jpg');
+    background-repeat: no-repeat;
+
+    /* use a nice Google font with a shadow */
+    padding-top: 7px;
+    font-family: 'Fugaz One', cursive;
+    font-size: 46px;
+    color: #a5c4c1;
+    text-shadow: 0.1em 0.1em 0.2em black;
+    text-align: center;
+}
+
+/* define the slider so that it stays in the header and is above the header itself*/
+#zoomSliderDiv {
+    position: fixed;
+    top: 22px;
+    height: 47px;
+    width: 160px;
+    right: 10px;
+    z-index: 3;
+}
+
+#zoomSlider {
+    width: 120px;
+    height: 40px;
+}
+
+#searchForm {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    height: 36px;
+    width: 228px;
+
+    z-index: 2;
+    opacity: 0.85;
+
+    padding: 12px;
+    font-family: sans-serif;
+}
+
+input[type="text"] {
+    font-size: 24px;
+
+}
+
+#mainpanel {
+    z-index: 1;
+}
+
+#leftPanel {
+    position: absolute;
+    top: 160px;
+    left: 0;
+    width: 231px;
+    
+    margin-left: 15px;
+    margin-right: 4px;
+    font-size: smaller;
+}
+
+#rightPanel {
+    position: absolute;
+    top: 90px;
+    right: 0;
+    left: 250px;
+}
+
+.RecipeBox {
+    float: left;
+    text-align: center;
+    margin: 0 0 0 0;
+    padding: 5px;
+}
+
+img.stars {
+    top: 0;
+    left:4;
+    z-index: 2;
+    opacity:0.4;
+    filter:alpha(opacity=40);
+    width: 80px;
+    height: 18px;
+}
+
+div.thumbnail {
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+.smalltext {
+    border: 1px solid appworkspace;
+    height: 20px; 
+    overflow:hidden;
+    font-size: x-small;
+}
+
+.normaltext {
+    border: 1px solid appworkspace;
+    height: 20px; 
+    overflow:hidden;
+    font-size: medium;
+}
+
+.imgLiquidFill {
+    width:400px; 
+    height:300px;
+}
+
+.imgLiquid {
+    display:block;
+    overflow:hidden;
+    background:transparent url('http://www.lotienes.com/imagenes/loading.gif') no-repeat center center;
+}
+
+.imgLiquid img{
+    visibility:hidden; 
+}
+

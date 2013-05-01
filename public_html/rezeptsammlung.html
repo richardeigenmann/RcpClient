@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Richi's Recipe Application</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="rezeptsammlung.css">
+        <link href='http://fonts.googleapis.com/css?family=Fugaz+One' rel='stylesheet' type='text/css'>
+    </head>
+    <body>
+
+        <div id="header">Rezeptsammlung von Richard Eigenmann</div>
+        <div id="searchPanel">
+            <form id="searchForm">
+                <input type="text" id="searchStringBox" size="13" placeholder="Search">
+            </form>
+            <p>
+        </div>
+        <div id="mainpage">
+            <div id="zoomSliderDiv">
+                <input id="zoomSlider" type="range"
+                       min="20" max="100" step="5" value="40"
+                       onchange="updateSlider( this.value )" /> <img src="zoom_icon.png">
+            </div><br/>
+
+            <div id="leftPanel">
+                <h3>Kategorien:</h3>
+                <div id="indexPanel"></div>
+            </div>
+            <div id="rightPanel"></div>
+
+        </div>
+
+        <script src="rezeptsammlung_lib.js"></script>
+        <script src="jquery-1.9.1.js"></script>
+        <script src="imgLiquid.js"></script>
+        <script src="rezeptsammlung.js"></script>
+    </body>
+</html>
