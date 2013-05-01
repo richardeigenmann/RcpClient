@@ -42,6 +42,7 @@ function loadHandler() {
     renderList( panel );
 
     var rightPanel = document.getElementById( "rightPanel" );
+    clearThumbnailPanel();
     renderThumbs( rcpArray, rightPanel );
 
     $( ".imgLiquidFill" ).imgLiquid( {

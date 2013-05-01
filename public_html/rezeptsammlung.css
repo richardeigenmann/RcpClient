@@ -135,3 +135,7 @@ div.thumbnail {
     visibility:hidden; 
 }
 
+.moreButton {
+    width: 100%;
+    padding: 9px;
+}

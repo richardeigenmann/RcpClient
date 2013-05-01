@@ -223,6 +223,8 @@ function clearThumbnailPanel() {
     rightPanel.innerHTML = '';
 }
 
+var LIMIT_THUMBS = 50;
+
 /**
  *  This function takes the supplied object of recipe objects and appends 
  *  them to the indicated dom object
@@ -230,11 +232,17 @@ function clearThumbnailPanel() {
  * @param {type} container the dom object to which the recpies are to be added
  * @returns {undefined} nothing.
  */
-function renderThumbs( recipeCollection, container ) {
+function renderThumbsOld( recipeCollection, container ) {
     if ( recipeCollection != null ) {
+        var count = 0;
         for ( var key in recipeCollection ) {
             var recipe = recipeCollection[key];
             container.appendChild( formatRecipe( recipe ) );
+            count++;
+            if ( count >= LIMIT_THUMBS ) {
+                container.appendChild( makeMoreBox( "LIST_COLLECTION", count + 1 ) );
+                break;
+            }
         }
     }
     $( ".imgLiquidFill" ).imgLiquid( {
@@ -244,6 +252,30 @@ function renderThumbs( recipeCollection, container ) {
         verticalAlign: "center"} );
 }
 
+/**
+ *  This function takes the supplied object of recipe objects and appends 
+ *  them to the indicated dom object
+ * @param {type} recipeArray  The array of recipies to be added
+ * @param {type} container the dom object to which the recpies are to be added
+ * @returns {undefined} nothing.
+ */
+function renderThumbs( recipeCollection, container ) {
+    var recipeArray = [];
+    if ( recipeCollection != null ) {
+        for ( var key in recipeCollection ) {
+            var recipe = recipeCollection[key];
+            recipeArray.push( recipe );
+        }
+        renderThumbsArray( recipeArray, container );
+    }
+}
+
+
+/**
+ * Array holding the recipes that are being shown
+ * @type Array
+ */
+var showingArray = [];
 
 /**
  *  This function takes the supplied array of recipes and appends 
@@ -253,9 +285,13 @@ function renderThumbs( recipeCollection, container ) {
  * @returns {undefined}
  */
 function renderThumbsArray( recipeArray, container ) {
-    for ( var i = 0, len = recipeArray.length; i < len; i++ ) {
+    showingArray = recipeArray;
+    for ( var i = 0, len = Math.min( recipeArray.length, LIMIT_THUMBS ); i < len; i++ ) {
         var recipe = recipeArray[i];
         container.appendChild( formatRecipe( recipe ) );
+        if ( i == LIMIT_THUMBS - 1 ) {
+            container.appendChild( makeMoreBox( i + 2 ) );
+        }
     }
 
     $( ".imgLiquidFill" ).imgLiquid( {
@@ -323,6 +359,52 @@ function formatRecipe( recipe ) {
     recipeHyperlink.appendChild( captionDiv );
 
     return recipeBox;
+}
+
+/**
+ * Returns a more button
+ * @returns the element for the more button
+ */
+function makeMoreBox( startIndex ) {
+
+    var buttonnode = document.createElement( 'input' );
+    buttonnode.setAttribute( 'type', 'button' );
+    buttonnode.setAttribute( 'name', 'more' );
+    buttonnode.setAttribute( 'value', 'mehr sehen' );
+    buttonnode.setAttribute( 'class', 'moreButton' );
+    buttonnode.setAttribute( 'data-startindex', startIndex );
+
+    buttonnode.onclick = function() {
+        rawMoreButtonClick( this );
+        return false;
+    };
+    return buttonnode;
+}
+
+
+function rawMoreButtonClick( button ) {
+    button.parentNode.removeChild( button );
+    moreButtonClick( parseInt( button.getAttribute( 'data-startindex' ) ) );
+}
+
+function moreButtonClick( startIndex ) {
+    //alert( "type: " + moreType + " startIndex: " + startIndex );
+    var container = document.getElementById( "rightPanel" );
+
+    for ( var i = startIndex, len = Math.min( showingArray.length, startIndex + LIMIT_THUMBS ); i < len; i++ ) {
+        var recipe = showingArray[i];
+        container.appendChild( formatRecipe( recipe ) );
+        if ( i == startIndex + LIMIT_THUMBS - 1 ) {
+            container.appendChild( makeMoreBox( i + 2 ) );
+        }
+    }
+
+    $( ".imgLiquidFill" ).imgLiquid( {
+        fill: true,
+        fadeInTime: 200,
+        horizontalAlign: "center",
+        verticalAlign: "center"} );
+
 }
 
 /**
