@@ -201,15 +201,50 @@ function recipeCompare( a, b ) {
     return 0;
 }
 
+/**
+ * Removes all thumbnails from the thumbnail panel
+ * @returns {undefined}
+ */
+function clearThumbnailPanel() {
+    var rightPanel = document.getElementById( "rightPanel" );
+    rightPanel.innerHTML = '';
+}
 
-
-function renderThumbs( thumbDiv ) {
-    if ( rcpArray != null ) {
-        for ( var key in rcpArray ) {
-            var recipe = rcpArray[key];
-            thumbDiv.appendChild( formatRecipe( recipe ) );
+/**
+ *  This function takes the supplied object of recipe objects and appends 
+ *  them to the indicated dom object
+ * @param {type} recipeArray  The array of recipies to be added
+ * @param {type} container the dom object to which the recpies are to be added
+ * @returns {undefined} nothing.
+ */
+function renderThumbs( recipeCollection, container ) {
+    if ( recipeCollection != null ) {
+        for ( var key in recipeCollection ) {
+            var recipe = recipeCollection[key];
+            container.appendChild( formatRecipe( recipe ) );
         }
     }
+    $( ".imgLiquidFill" ).imgLiquid( {
+        fill: true,
+        fadeInTime: 200,
+        horizontalAlign: "center",
+        verticalAlign: "center"} );
+}
+
+
+/**
+ *  This function takes the supplied array of recipes and appends 
+ *  them to the indicated dom object
+ * @param {type} recipeArray
+ * @param {type} container
+ * @returns {undefined}
+ */
+function renderThumbsArray( recipeArray, container ) {
+    for ( var i = 0, len = recipeArray.length; i < len; i++ ) {
+        var recipe = recipeArray[i];
+        container.appendChild( formatRecipe( recipe ) );
+    }
+
     $( ".imgLiquidFill" ).imgLiquid( {
         fill: true,
         fadeInTime: 200,
@@ -369,21 +404,8 @@ function doSearch() {
 
     logStatus( "Found: " + uniqSortedSearchResults.length + " " + alsoFoundText );
 
-    var bigPanel = document.getElementById( "rightPanel" );
-    bigPanel.innerHTML = '';
-
-
-    for ( var i = 0, len = uniqSortedSearchResults.length; i < len; i++ ) {
-        var recipe = uniqSortedSearchResults[i];
-        bigPanel.appendChild( formatRecipe( recipe ) );
-    }
-
-    $( ".imgLiquidFill" ).imgLiquid( {
-        fill: true,
-        fadeInTime: 200,
-        horizontalAlign: "center",
-        verticalAlign: "center"} );
-
+    clearThumbnailPanel();
+    renderThumbsArray( uniqSortedSearchResults, document.getElementById( "rightPanel" ));
 }
 
 
@@ -405,10 +427,10 @@ function cleanString( inputString ) {
 }
 
 /**
- * Returns the input String in lowercase with umlauts transformed to non umlaut characters
- * and all vowels removed so that search is more lenient
- * @param {type} inputString
- * @returns {unresolved}
+ * Returns the input String in lowercase with all vowels removed so that search 
+ * is more lenient
+ * @param {type} inputString  the string to transform
+ * @returns {unresolved} the transformed string
  */
 function rabidCleanString( inputString ) {
     var lc = inputString.toLowerCase();

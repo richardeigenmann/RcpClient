@@ -33,8 +33,8 @@ function loadHandler() {
     var panel = document.getElementById( "indexPanel" );
     renderList( panel );
 
-    var bigPanel = document.getElementById( "rightPanel" );
-    renderThumbs( bigPanel );
+    var rightPanel = document.getElementById( "rightPanel" );
+    renderThumbs( rcpArray, rightPanel );
 
     $( ".imgLiquidFill" ).imgLiquid( {
         fill: true,
