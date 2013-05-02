@@ -3,6 +3,7 @@ var serverRoot = "@serverRoot@";  /* gets replaced by the ant build.xml when pus
 var enumerationUrl = "@enumerationUrl@";
 var recipesRoot = "@recipesRoot@";
 
+var LIMIT_THUMBS = 60; /* number of thumbs to show initially */
 var defaultZoom = 100;  /* gets set from the html page on startup */
 var maxThumbnailWidth = 400;
 var maxThumbnailHeight = 300;
@@ -153,21 +154,17 @@ function renderDebug( targetDiv ) {
  * @param {type} targetDiv the div element ot which the list should be added
  * @returns {unresolved}
  */
-function renderList( targetDiv ) {
-    var sortedCategories = [];
-    var category = "Speise-Kategorie";
-    for ( var key in index[category] ) {
-        sortedCategories.push( key );
-    }
-    sortedCategories.sort();
+function renderIndex( targetDiv ) {
+    var categoryType = "Bewertung";
+    var sortedCategories = getCategories( categoryType );
+    addCategoriesAsHyperlinks( categoryType, sortedCategories, targetDiv );
 
-    var quickIndex = "";
-    for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
-        var category = sortedCategories[i];
-        var escapedCategory = escape( category );
-        quickIndex += "<a class=\"categoryLink\" data-category=\"" + escapedCategory + "\"  href=\"#\">" + category + "</a><br>";
-    }
+    var br = document.createElement( 'br' );
+    targetDiv.appendChild( br );
 
+    categoryType = "Speise-Kategorie";
+    sortedCategories = getCategories( categoryType );
+    addCategoriesAsHyperlinks( categoryType, sortedCategories, targetDiv );
 
     /*var list = quickIndex + "<p>";
      for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
@@ -187,15 +184,57 @@ function renderList( targetDiv ) {
      }
      
      }*/
-    targetDiv.innerHTML = quickIndex;
+    //targetDiv.innerHTML = quickIndex;
 }
+
+/**
+ * Returns a sorted Array of the categories belonging to a category type.
+ * I.e. for Speise-Kategorie it returns the categories "Hautgerichte", "Desserts" etc.
+ * @param {type} categoryType
+ * @returns {undefined}
+ */
+function getCategories( categoryType ) {
+    var categories = [];
+    for ( var key in index[categoryType] ) {
+        categories.push( key );
+    }
+    categories.sort();
+    return categories;
+}
+
+/**
+ * Adds the categories in the array as hyperlinks ith the approriate target Element
+ * @param {type} sortedCategories
+ * @param {type} quickIndex
+ * @returns {unresolved}
+ */
+function addCategoriesAsHyperlinks( categoryType, sortedCategories, targetElement ) {
+    for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
+        var category = sortedCategories[i];
+        var escapedCategory = escape( category );
+        //quickIndex += "<a class=\"categoryLink\" data-categorytype=\"" + categoryType + "\" data-category=\"" + escapedCategory + "\"  href=\"#\">" + category + "</a><br>";
+        var categoryHyperlink = document.createElement( "a" );
+        categoryHyperlink.setAttribute( "href", "#" );
+        categoryHyperlink.setAttribute( "class", "categoryLink" );
+        categoryHyperlink.setAttribute( "data-categorytype", categoryType );
+        categoryHyperlink.setAttribute( "data-category", escapedCategory );
+        //var linkText = document.createElement();
+        categoryHyperlink.innerHTML = category;
+        //categoryHyperlink.appendChild( linkText );
+        targetElement.appendChild( categoryHyperlink );
+
+        var br = document.createElement( 'br' );
+        targetElement.appendChild( br );
+    }
+}
+
 
 /**
  * This method handles the user's click on a category and shows the associated thums.
  * @returns {undefined}
  */
-function showCategoryThumbs( category ) {
-    var categoryRecipes = index["Speise-Kategorie"];
+function showCategoryThumbs( categoryType, category ) {
+    var categoryRecipes = index[categoryType];
     var recipeNameArray = categoryRecipes[category];  // returns an array of strings i.e. "Rcp001.htm", "Rcp002.htm"
     var recipesArray = [];
     for ( var i = 0, len = recipeNameArray.length; i < len; i++ ) {
@@ -223,34 +262,8 @@ function clearThumbnailPanel() {
     rightPanel.innerHTML = '';
 }
 
-var LIMIT_THUMBS = 50;
 
-/**
- *  This function takes the supplied object of recipe objects and appends 
- *  them to the indicated dom object
- * @param {type} recipeArray  The array of recipies to be added
- * @param {type} container the dom object to which the recpies are to be added
- * @returns {undefined} nothing.
- */
-function renderThumbsOld( recipeCollection, container ) {
-    if ( recipeCollection != null ) {
-        var count = 0;
-        for ( var key in recipeCollection ) {
-            var recipe = recipeCollection[key];
-            container.appendChild( formatRecipe( recipe ) );
-            count++;
-            if ( count >= LIMIT_THUMBS ) {
-                container.appendChild( makeMoreBox( "LIST_COLLECTION", count + 1 ) );
-                break;
-            }
-        }
-    }
-    $( ".imgLiquidFill" ).imgLiquid( {
-        fill: true,
-        fadeInTime: 200,
-        horizontalAlign: "center",
-        verticalAlign: "center"} );
-}
+
 
 /**
  *  This function takes the supplied object of recipe objects and appends 

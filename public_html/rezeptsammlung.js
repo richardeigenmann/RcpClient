@@ -18,7 +18,7 @@ window.onload = function() {
     var aArray = document.getElementsByClassName( "categoryLink" );
     for ( var i = 0, len = aArray.length; i < len; i++ ) {
         aArray[i].onclick = function() {
-            showCategoryThumbs(unescape( this.getAttribute('data-category')) );
+            showCategoryThumbs(unescape( this.getAttribute('data-categorytype')), unescape( this.getAttribute('data-category')) );
             return false;
         }
     }
@@ -39,7 +39,7 @@ function processForm( e ) {
  */
 function loadHandler() {
     var panel = document.getElementById( "indexPanel" );
-    renderList( panel );
+    renderIndex( panel );
 
     var rightPanel = document.getElementById( "rightPanel" );
     clearThumbnailPanel();
