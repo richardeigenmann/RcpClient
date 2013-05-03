@@ -156,6 +156,9 @@ function renderDebug( targetDiv ) {
  */
 function renderIndex( targetDiv ) {
     var categoryType = "Bewertung";
+    var valuationTitle = document.createElement( "h3" );
+    valuationTitle.appendChild( document.createTextNode( categoryType ) );
+    targetDiv.appendChild( valuationTitle );
     var sortedCategories = getCategories( categoryType );
     addCategoriesAsHyperlinks( categoryType, sortedCategories, targetDiv );
 
@@ -163,28 +166,31 @@ function renderIndex( targetDiv ) {
     targetDiv.appendChild( br );
 
     categoryType = "Speise-Kategorie";
+    var categoriesTitle = document.createElement( "h3" );
+    categoriesTitle.appendChild( document.createTextNode( categoryType ) );
+    targetDiv.appendChild( categoriesTitle );
     sortedCategories = getCategories( categoryType );
     addCategoriesAsHyperlinks( categoryType, sortedCategories, targetDiv );
 
-    /*var list = quickIndex + "<p>";
-     for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
-     var escapedCategory = escape( sortedCategories[i] );
-     list += "<h3 id=\"" + escapedCategory + "\">" + sortedCategories[i] + "</h3>";
-     
-     var sortedRecipes = [];
-     for ( var j = 0, lenj = index["Speise-Kategorie"][sortedCategories[i]].length; j < lenj; j++ ) {
-     var rcpKey = index["Speise-Kategorie"][sortedCategories[i]][j];
-     recipe = rcpArray[rcpKey];
-     sortedRecipes.push( recipe );
-     }
-     sortedRecipes.sort( recipeCompare );
-     
-     for ( var k = 0, lenk = sortedRecipes.length; k < lenj; k++ ) {
-     list += "<a href=\"" + recipesRoot + sortedRecipes[k].filename + "\">" + sortedRecipes[k].name + "</a><br>";
-     }
-     
-     }*/
-    //targetDiv.innerHTML = quickIndex;
+    var br = document.createElement( 'br' );
+    targetDiv.appendChild( br );
+
+    categoryType = "Region";
+    var categoriesTitle = document.createElement( "h3" );
+    categoriesTitle.appendChild( document.createTextNode( categoryType ) );
+    targetDiv.appendChild( categoriesTitle );
+    sortedCategories = getCategories( categoryType );
+    addCategoriesAsHyperlinks( categoryType, sortedCategories, targetDiv );
+
+    var br = document.createElement( 'br' );
+    targetDiv.appendChild( br );
+
+    categoryType = "Quelle";
+    var categoriesTitle = document.createElement( "h3" );
+    categoriesTitle.appendChild( document.createTextNode( categoryType ) );
+    targetDiv.appendChild( categoriesTitle );
+    sortedCategories = getCategories( categoryType );
+    addCategoriesAsHyperlinks( categoryType, sortedCategories, targetDiv );
 }
 
 /**
@@ -212,17 +218,13 @@ function addCategoriesAsHyperlinks( categoryType, sortedCategories, targetElemen
     for ( var i = 0, len = sortedCategories.length; i < len; i++ ) {
         var category = sortedCategories[i];
         var escapedCategory = escape( category );
-        //quickIndex += "<a class=\"categoryLink\" data-categorytype=\"" + categoryType + "\" data-category=\"" + escapedCategory + "\"  href=\"#\">" + category + "</a><br>";
         var categoryHyperlink = document.createElement( "a" );
         categoryHyperlink.setAttribute( "href", "#" );
         categoryHyperlink.setAttribute( "class", "categoryLink" );
         categoryHyperlink.setAttribute( "data-categorytype", categoryType );
         categoryHyperlink.setAttribute( "data-category", escapedCategory );
-        //var linkText = document.createElement();
         categoryHyperlink.innerHTML = category;
-        //categoryHyperlink.appendChild( linkText );
         targetElement.appendChild( categoryHyperlink );
-
         var br = document.createElement( 'br' );
         targetElement.appendChild( br );
     }
@@ -240,6 +242,7 @@ function showCategoryThumbs( categoryType, category ) {
     for ( var i = 0, len = recipeNameArray.length; i < len; i++ ) {
         recipesArray.push( rcpArray[recipeNameArray[i]] );
     }
+    recipesArray.sort( recipeCompare );
     clearThumbnailPanel();
     scrollThumbsToTop();
     renderThumbsArray( recipesArray, document.getElementById( "rightPanel" ) );
@@ -250,7 +253,7 @@ function showCategoryThumbs( categoryType, category ) {
  * @returns {undefined}
  */
 function scrollThumbsToTop() {
-    window.scrollTo(0,0);
+    window.scrollTo( 0, 0 );
 }
 
 function recipeCompare( a, b ) {
