@@ -275,7 +275,7 @@ function recipeCompare( a, b ) {
 }
 
 /**
- * Returns Strign with the Umlauts replaced as notmal characters
+ * Returns String with the Umlauts replaced as normal characters
  * @param {type} inputString
  * @returns {unresolved}
  */
