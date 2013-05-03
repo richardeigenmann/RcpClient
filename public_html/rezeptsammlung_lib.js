@@ -3,7 +3,7 @@ var serverRoot = "@serverRoot@";  /* gets replaced by the ant build.xml when pus
 var enumerationUrl = "@enumerationUrl@";
 var recipesRoot = "@recipesRoot@";
 
-var LIMIT_THUMBS = 60; /* number of thumbs to show initially */
+var LIMIT_THUMBS = 90; /* number of thumbs to show initially */
 var defaultZoom = 100;  /* gets set from the html page on startup */
 var maxThumbnailWidth = 400;
 var maxThumbnailHeight = 300;
@@ -256,13 +256,39 @@ function scrollThumbsToTop() {
     window.scrollTo( 0, 0 );
 }
 
+
+/**
+ * Function to be used in array.sort( recipeCompare ) to sort arrays of recipes
+ * alphabeticalls
+ * @param {type} a
+ * @param {type} b
+ * @returns {Number}
+ */
 function recipeCompare( a, b ) {
-    if ( a.name < b.name )
+    var a1 = decodeUmlauts( a.name );
+    var b1 = decodeUmlauts( b.name );
+    if ( a1 < b1 )
         return -1;
-    if ( a.name > b.name )
+    if ( a1 > b1 )
         return 1;
     return 0;
 }
+
+/**
+ * Returns Strign with the Umlauts replaced as notmal characters
+ * @param {type} inputString
+ * @returns {unresolved}
+ */
+function decodeUmlauts( inputString ) {
+    var s1 = inputString.replace( /&auml;/g, 'ae' );
+    var s2 = s1.replace( /&ouml;/g, 'oe' );
+    var s3 = s2.replace( /&uuml;/g, 'ue' );
+    var s4 = s3.replace( /&Auml;/g, 'Ae' );
+    var s5 = s4.replace( /&Ouml;/g, 'Oe' );
+    var s6 = s5.replace( /&Uuml;/g, 'Ue' );
+    return s6;
+}
+
 
 /**
  * Removes all thumbnails from the thumbnail panel
@@ -279,7 +305,7 @@ function clearThumbnailPanel() {
 /**
  *  This function takes the supplied object of recipe objects and appends 
  *  them to the indicated dom object
- * @param {type} recipeArray  The array of recipies to be added
+ * @param {type} recipeCollection  The array of recipies to be added
  * @param {type} container the dom object to which the recpies are to be added
  * @returns {undefined} nothing.
  */
@@ -290,6 +316,7 @@ function renderThumbs( recipeCollection, container ) {
             var recipe = recipeCollection[key];
             recipeArray.push( recipe );
         }
+        recipeArray.sort( recipeCompare )
         renderThumbsArray( recipeArray, container );
     }
 }
