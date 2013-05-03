@@ -241,9 +241,17 @@ function showCategoryThumbs( categoryType, category ) {
         recipesArray.push( rcpArray[recipeNameArray[i]] );
     }
     clearThumbnailPanel();
+    scrollThumbsToTop();
     renderThumbsArray( recipesArray, document.getElementById( "rightPanel" ) );
 }
 
+/**
+ *  Scrolls to the top of the page
+ * @returns {undefined}
+ */
+function scrollThumbsToTop() {
+    window.scrollTo(0,0);
+}
 
 function recipeCompare( a, b ) {
     if ( a.name < b.name )
@@ -513,6 +521,7 @@ function doSearch() {
     logStatus( "Found: " + uniqSortedSearchResults.length + " " + alsoFoundText );
 
     clearThumbnailPanel();
+    scrollThumbsToTop();
     renderThumbsArray( uniqSortedSearchResults, document.getElementById( "rightPanel" ) );
 }
 
