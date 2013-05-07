@@ -364,6 +364,8 @@ function formatRecipe( recipe ) {
     var maxWidth = maxThumbnailWidth * defaultZoom / 100;
     var maxHeight = maxThumbnailHeight * defaultZoom / 100;
     recipeBox.setAttribute( "style", "width: " + maxWidth + "px" );
+    recipeBox.setAttribute( "onmouseover", "doRcpPopup(event, this);" );
+    recipeBox.setAttribute( "data-recipe", recipe.filename );
 
     var recipeHyperlink = document.createElement( "a" );
     recipeHyperlink.setAttribute( 'href', recipesRoot + "/" + recipe.filename );
@@ -630,4 +632,91 @@ function leftPad( num ) {
     } else {
         return num;
     }
+}
+
+function auth() {
+    console.log( 'firing auth' );
+    var config = {
+        'client_id': '727840828834.apps.googleusercontent.com',
+        'scope': 'https://www.googleapis.com/auth/urlshortener'
+    };
+    gapi.auth.authorize( config, function() {
+        console.log( 'login complete' );
+        console.log( gapi.auth.getToken() );
+    } );
+}
+
+function googleinit() {
+    gapi.client.setApiKey( 'AIzaSyC-REjbFztx8AQ9j6WCrN1CWTRSlQ95aUE' );
+    gapi.client.load( 'urlshortener', 'v1', makeRequest );
+}
+
+function appendResults( text ) {
+    var results = document.getElementById( 'results' );
+    results.appendChild( document.createElement( 'P' ) );
+    results.appendChild( document.createTextNode( text ) );
+}
+
+function makeRequest() {
+    var request = gapi.client.urlshortener.url.insert( {
+        'longUrl': 'http://www.nzz.ch'
+    } );
+    request.execute( function( response ) {
+        appendResults( response.shortUrl );
+    } );
+}
+
+
+/**
+ * From http://www.daniweb.com/web-development/javascript-dhtml-ajax/threads/76965/creating-a-popup-menu-on-mouse-over#
+ * findPos function is from http://www.quirksmode.org/js/findpos.html;
+ *  where its workings are explained in more detail.
+ */
+function findPos( obj ) {
+    var curleft = curtop = 0;
+    if ( obj.offsetParent ) {
+        curleft = obj.offsetLeft
+        curtop = obj.offsetTop
+        while ( obj = obj.offsetParent ) {
+            curleft += obj.offsetLeft
+            curtop += obj.offsetTop
+        }
+    }
+    return [curleft, curtop];
+}
+
+//Display a named menu, at the position of another object
+function doRcpPopup( e, parent ) {
+    var dataRecipe = parent.getAttribute( "data-recipe" );
+    var recipe = rcpArray[dataRecipe];
+    //console.log( "mouseover on: " + recipe.name );
+
+    var menu_element = document.getElementById( 'rcpPopupMenu' );
+    //override the 'display:none;' style attribute
+    menu_element.style.display = "";
+    //get the placement of the element that invoked the menu...
+    //var placement = findPos( parent );
+    //...and put the menu there
+//	menu_element.style.left = placement[0] + 50 + "px";
+//	menu_element.style.top = placement[1] + 50 + "px";
+    menu_element.style.left = e.pageX + "px";
+    menu_element.style.top = e.pageY + "px";
+    
+    var rcpPopupMenuTitle = document.getElementById("rcpPopupMenuTitle");
+    rcpPopupMenuTitle.innerHTML = recipe.name;
+    
+    var rcpPopupMenuOpen = document.getElementById("rcpPopupMenuOpen");
+    rcpPopupMenuOpen.onclick = function() {window.open(recipesRoot + "/" + recipe.filename); };
+            //"window.open(\"" + recipesRoot + "/" + recipe.filename + "\")";
+}
+
+
+
+//Hide a named menu
+function hide_menu( named )
+{
+    //get the named menu
+    var menu_element = document.getElementById( named );
+    //hide it with a style attribute
+    menu_element.style.display = "none";
 }

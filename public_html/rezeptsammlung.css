@@ -139,3 +139,20 @@ div.thumbnail {
     width: 100%;
     padding: 9px;
 }
+
+.popup {
+	position:absolute;
+	border:solid 1px black;
+	background-color:white;
+	padding:4px;
+}
+.popupTitle {
+    
+}
+.popup li {
+    background-color: lightblue;
+    list-style-image: url("triangleIcon.png");
+}
+.popup li:hover {
+    background-color: orange;
+}

@@ -23,6 +23,8 @@
             </div><br/>
 
             <div id="leftPanel">
+                <button onclick="auth();">Authorize</button>
+                <div id="results"></div>
                 <div id="indexPanel"></div>
             </div>
             <div id="rightPanel">
@@ -43,9 +45,23 @@
 
         </div>
 
+        <!--Define the menu's contents. It's important to put the display:none style attribute
+        here rather than in a <style> block, because it can be overriden easily if it's assigned here-->
+        <div class="popup" id="rcpPopupMenu" style="display:none;">
+            <div class="popupTitle" id="rcpPopupMenuTitle">Title</div>
+            <ul>
+                <li id="rcpPopupMenuOpen">Open in new Tab</li>
+                <li><a href="#">Sign in to Google Calendar</a></li>
+                <li><a href="#">Add to Google Calendar</a></li>
+            </ul>
+            <!--Hide the menu when the text (Close popup) is clicked-->
+            <button onclick="hide_menu( 'rcpPopupMenu' );">close</button>
+        </div>
+
         <script src="rezeptsammlung_lib.js"></script>
         <script src="jquery-1.9.1.js"></script>
         <script src="imgLiquid.js"></script>
         <script src="rezeptsammlung.js"></script>
+        <script src="https://apis.google.com/js/client.js?onload=googleinit"></script>
     </body>
 </html>
