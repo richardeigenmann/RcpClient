@@ -71,7 +71,7 @@ input[type="text"] {
     top: 160px;
     left: 0;
     width: 231px;
-    
+
     margin-left: 15px;
     margin-right: 4px;
     font-size: smaller;
@@ -86,19 +86,33 @@ input[type="text"] {
 
 .RecipeBox {
     float: left;
-    text-align: center;
     margin: 0 0 0 0;
     padding: 5px;
+
+    /* add a border here that is not visible so that 
+       the :hover border doesn't make the thumbnails 
+       jump around */
+    border-style: solid;
+    border-color: white;
+    border-width: 1px;
 }
 
-img.stars {
-    top: 0;
-    left:4;
+.RecipeBox:hover {
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+}
+
+.stars {
     z-index: 2;
-    opacity:0.4;
-    filter:alpha(opacity=40);
-    width: 80px;
-    height: 18px;
+    /* opacity:0.6; */
+    /* filter:alpha(opacity=40); */
+    /* width: 80px;
+    height: 18px; */
+    position: absolute;
+    /* text-align: left;
+    background: rgba(172,172,193,0.5);  /* 50% transparent 
+    box-shadow: 2px 2px 2px 2px rgba(172,172,193, 0.5); */
 }
 
 div.thumbnail {
@@ -111,6 +125,7 @@ div.thumbnail {
     height: 20px; 
     overflow:hidden;
     font-size: x-small;
+    text-align: center;
 }
 
 .normaltext {
@@ -118,6 +133,7 @@ div.thumbnail {
     height: 20px; 
     overflow:hidden;
     font-size: medium;
+    text-align: center;
 }
 
 .imgLiquidFill {
@@ -141,13 +157,14 @@ div.thumbnail {
 }
 
 .popup {
-	position:absolute;
-	border:solid 1px black;
-	background-color:white;
-	padding:4px;
+    position:absolute;
+    border:solid 1px black;
+    background-color:white;
+    padding:4px;
+    z-index: 3;
 }
 .popupTitle {
-    
+
 }
 .popup li {
     background-color: lightblue;

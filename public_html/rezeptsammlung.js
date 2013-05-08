@@ -14,14 +14,6 @@ window.onload = function() {
     }
 
     fetchData();
-
-    var aArray = document.getElementsByClassName( "categoryLink" );
-    for ( var i = 0, len = aArray.length; i < len; i++ ) {
-        aArray[i].onclick = function() {
-            showCategoryThumbs(unescape( this.getAttribute('data-categorytype')), unescape( this.getAttribute('data-category')) );
-            return false;
-        }
-    }
 };
 
 /**
@@ -34,21 +26,4 @@ function processForm( e ) {
     return false;
 }
 
-/**
- * Callback from RcpClient.js when the recipes have finished loading. 
- */
-function loadHandler() {
-    var panel = document.getElementById( "indexPanel" );
-    renderIndex( panel );
-
-    var rightPanel = document.getElementById( "rightPanel" );
-    clearThumbnailPanel();
-    renderThumbs( rcpArray, rightPanel );
-
-    $( ".imgLiquidFill" ).imgLiquid( {
-        fill: true,
-        fadeInTime: 200,
-        horizontalAlign: "center",
-        verticalAlign: "middle"} );
-}
 

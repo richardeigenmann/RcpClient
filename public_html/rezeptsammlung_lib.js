@@ -1,7 +1,24 @@
 /* Global variables about the recipe collection */
-var serverRoot = "@serverRoot@";  /* gets replaced by the ant build.xml when pushing to a server */
-var enumerationUrl = "@enumerationUrl@";
-var recipesRoot = "@recipesRoot@";
+/**
+ * The root address of the Server
+ * @constant
+ * @type {string}
+ */
+var SERVER_ROOT = "@serverRoot@";  // gets replaced by the ant build.xml when pushing to a server
+
+/**
+ * The enumberation URL to hit to find out if there are new recipes
+ * @constant
+ * @type String
+ */
+var ENUMERATION_URL = "@enumerationUrl@";
+
+/**
+ * The root URL of where the recipes are stored
+ * @constant
+ * @type String
+ */
+var RECIPES_ROOT = "@recipesRoot@";
 
 var LIMIT_THUMBS = 90; /* number of thumbs to show initially */
 var defaultZoom = 100;  /* gets set from the html page on startup */
@@ -13,6 +30,10 @@ function logStatus( message ) {
     console.log( message );
 }
 
+/**
+ * Static global variable where we store all recipes
+ * @type @exp;JSON@call;parse|@exp;JSON@call;parse
+ */
 var rcpArray;
 function fetchData() {
     var lastFetch = localStorage.getItem( "rcpLastFetch" );
@@ -21,17 +42,16 @@ function fetchData() {
     } else {
         var rcpData = localStorage.getItem( "rcpArray" );
         if ( rcpData == null ) {
-            fullFetch();
+            fullFetch();  // because we don't have any data
         } else {
-            rcpArray = JSON.parse( rcpData );
-            buildIndex();
-            loadHandler();  // in the page specific js file
-
             // check if there is anything new
             logStatus( "We have the recpies cached, but checking if there are any new ones..." );
-            logStatus( "Connecting to: " + enumerationUrl + "?startfrom=" + lastFetch );
+            var url = ENUMERATION_URL + "?startfrom=" + lastFetch;
+            logStatus( "Connecting to: " + url );
+            document.getElementById( "serverdetails" );
+            serverdetails.innerHTML = url;
             var request = new XMLHttpRequest();
-            request.open( "GET", enumerationUrl + "?startfrom=" + lastFetch );
+            request.open( "GET", ENUMERATION_URL + "?startfrom=" + lastFetch );
             request.onload = function() {
                 if ( request.status == 200 ) {
                     //console.log( "Response: " + request.responseText );
@@ -41,6 +61,11 @@ function fetchData() {
                         localStorage.removeItem( "rcpLastFetch" );
                         localStorage.removeItem( "rcpArray" );
                         fullFetch();
+                    } else {
+                        // our last data fetch was current enough; we have everything
+                        rcpArray = JSON.parse( rcpData );
+                        buildIndex();
+                        loadHandler();  // in the page specific js file
                     }
                 }
             };
@@ -50,10 +75,10 @@ function fetchData() {
 }
 
 function fullFetch() {
-    logStatus( "Full Download. Connecting to: " + enumerationUrl );
+    logStatus( "Full Download. Connecting to: " + ENUMERATION_URL );
 
     var request = new XMLHttpRequest();
-    request.open( "GET", enumerationUrl );
+    request.open( "GET", ENUMERATION_URL );
     request.onload = function() {
         if ( request.status == 200 ) {
             localStorage.setItem( "rcpArray", request.responseText );
@@ -68,6 +93,26 @@ function fullFetch() {
     };
     request.send( null );
 }
+
+/**
+ * Callback from RcpClient.js when the recipes have finished loading. 
+ */
+function loadHandler() {
+    var panel = document.getElementById( "indexPanel" );
+    renderIndex( panel );
+
+    var rightPanel = document.getElementById( "rightPanel" );
+    clearThumbnailPanel();
+    renderThumbs( rcpArray, rightPanel );
+
+    $( ".imgLiquidFill" ).imgLiquid( {
+        fill: true,
+        fadeInTime: 200,
+        horizontalAlign: "center",
+        verticalAlign: "middle"} );
+}
+
+
 
 var index = {};
 /**
@@ -224,6 +269,10 @@ function addCategoriesAsHyperlinks( categoryType, sortedCategories, targetElemen
         categoryHyperlink.setAttribute( "data-categorytype", categoryType );
         categoryHyperlink.setAttribute( "data-category", escapedCategory );
         categoryHyperlink.innerHTML = category;
+        categoryHyperlink.onclick = function() {
+            doCategoryClick( unescape( this.getAttribute( 'data-categorytype' ) ), unescape( this.getAttribute( 'data-category' ) ) );
+            return false;
+        }
         targetElement.appendChild( categoryHyperlink );
         var br = document.createElement( 'br' );
         targetElement.appendChild( br );
@@ -235,7 +284,7 @@ function addCategoriesAsHyperlinks( categoryType, sortedCategories, targetElemen
  * This method handles the user's click on a category and shows the associated thums.
  * @returns {undefined}
  */
-function showCategoryThumbs( categoryType, category ) {
+function doCategoryClick( categoryType, category ) {
     var categoryRecipes = index[categoryType];
     var recipeNameArray = categoryRecipes[category];  // returns an array of strings i.e. "Rcp001.htm", "Rcp002.htm"
     var recipesArray = [];
@@ -364,15 +413,19 @@ function formatRecipe( recipe ) {
     var maxWidth = maxThumbnailWidth * defaultZoom / 100;
     var maxHeight = maxThumbnailHeight * defaultZoom / 100;
     recipeBox.setAttribute( "style", "width: " + maxWidth + "px" );
-    recipeBox.setAttribute( "onmouseover", "doRcpPopup(event, this);" );
+    //recipeBox.setAttribute( "onmouseover", "doRcpPopup(event, this);" );
     recipeBox.setAttribute( "data-recipe", recipe.filename );
+    recipeBox.onclick = function() {
+        doRcpPopup( event, this );
+        return false;
+    }
 
-    var recipeHyperlink = document.createElement( "a" );
-    recipeHyperlink.setAttribute( 'href', recipesRoot + "/" + recipe.filename );
-    recipeBox.appendChild( recipeHyperlink );
+    //var recipeHyperlink = document.createElement( "a" );
+    //recipeHyperlink.setAttribute( 'href', RECIPES_ROOT + "/" + recipe.filename );
+    //recipeBox.appendChild( recipeHyperlink );
 
     var thumbnailBox = document.createElement( "div" );
-    recipeHyperlink.appendChild( thumbnailBox );
+    recipeBox.appendChild( thumbnailBox );
 
     var starsImg = document.createElement( "img" );
     starsImg.className = "stars";
@@ -393,7 +446,29 @@ function formatRecipe( recipe ) {
             break;
     }
     starsImg.setAttribute( "src", "http://richieigenmann.users.sourceforge.net/" + starsUrl );
-    thumbnailBox.appendChild( starsImg );
+    //thumbnailBox.appendChild( starsImg );
+
+    var starsCanvas = document.createElement( "canvas" );
+    starsCanvas.className = "stars";
+    var ctx = starsCanvas.getContext( "2d" );
+    ctx.fillStyle = "gold";
+    if ( starsString === "4 Sterne" ) {
+        ctx.fillStyle = "red";
+    }
+    drawStar( ctx, 71, 11 );
+    if ( starsString === "3 Sterne" ) {
+        ctx.fillStyle = "red";
+    }
+    drawStar( ctx, 51, 11 );
+    if ( starsString === "2 Sterne" ) {
+        ctx.fillStyle = "red";
+    }
+    drawStar( ctx, 31, 11 );
+    if ( starsString === "1 Stern" ) {
+        ctx.fillStyle = "red";
+    }
+    drawStar( ctx, 11, 11 );
+    thumbnailBox.appendChild( starsCanvas );
 
     var thumbnailDiv = document.createElement( "div" );
     thumbnailDiv.className = "imgLiquidFill imgLiquid";
@@ -402,17 +477,58 @@ function formatRecipe( recipe ) {
 
     var thumbnailImg = document.createElement( "img" );
     thumbnailImg.className = "RecipeThumbnail";
-    thumbnailImg.setAttribute( "src", recipesRoot + "/" + recipe.imageFilename );
+    thumbnailImg.setAttribute( "src", RECIPES_ROOT + "/" + recipe.imageFilename );
     thumbnailImg.setAttribute( "alt", recipe.name );
     thumbnailDiv.appendChild( thumbnailImg );
 
     var captionDiv = document.createElement( "div" );
     captionDiv.className = "normaltext";
     captionDiv.innerHTML = recipe.name;
-    recipeHyperlink.appendChild( captionDiv );
+    //recipeHyperlink.appendChild( captionDiv );
+    recipeBox.appendChild( captionDiv );
 
     return recipeBox;
 }
+
+
+/**
+ * Originally found this page: http://programmingthomas.wordpress.com/2012/05/16/drawing-stars-with-html5-canvas/
+ * This draws a star using parametrised radius and spike length. I fear that doing all those floating point 
+ * calculations could be really slow so I have "pre-rendered" the calculations into this function for a small star.
+ * @param {type} ctx
+ * @param {type} x
+ * @param {type} y
+ * @returns {undefined}
+ */
+function drawStar( ctx, x, y ) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.translate( x, y );
+    ctx.moveTo( 0, -10 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -4.5 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -10 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -4.5 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -10 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -4.5 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -10 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -4.5 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -10 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -4.5 );
+    ctx.rotate( 0.6283185307179586 );
+    ctx.lineTo( 0, -10 );
+    ctx.fill();
+    ctx.restore();
+}
+
 
 /**
  * Returns a more button
@@ -701,13 +817,15 @@ function doRcpPopup( e, parent ) {
 //	menu_element.style.top = placement[1] + 50 + "px";
     menu_element.style.left = e.pageX + "px";
     menu_element.style.top = e.pageY + "px";
-    
-    var rcpPopupMenuTitle = document.getElementById("rcpPopupMenuTitle");
+
+    var rcpPopupMenuTitle = document.getElementById( "rcpPopupMenuTitle" );
     rcpPopupMenuTitle.innerHTML = recipe.name;
-    
-    var rcpPopupMenuOpen = document.getElementById("rcpPopupMenuOpen");
-    rcpPopupMenuOpen.onclick = function() {window.open(recipesRoot + "/" + recipe.filename); };
-            //"window.open(\"" + recipesRoot + "/" + recipe.filename + "\")";
+
+    var rcpPopupMenuOpen = document.getElementById( "rcpPopupMenuOpen" );
+    rcpPopupMenuOpen.onclick = function() {
+        window.open( RECIPES_ROOT + "/" + recipe.filename );
+    };
+    //"window.open(\"" + RECIPES_ROOT + "/" + recipe.filename + "\")";
 }
 
 
