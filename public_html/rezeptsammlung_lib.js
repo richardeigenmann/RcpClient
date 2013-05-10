@@ -338,6 +338,20 @@ function decodeUmlauts( inputString ) {
     return s6;
 }
 
+/**
+ * Returns String with the Umlauts replaced as normal characters  &auml; --> ä
+ * @param {type} inputString
+ * @returns {unresolved}
+ */
+function decodeUmlautCharacters( inputString ) {
+    var s1 = inputString.replace( /&auml;/g, 'ä' );
+    var s2 = s1.replace( /&ouml;/g, 'ö' );
+    var s3 = s2.replace( /&uuml;/g, 'ü' );
+    var s4 = s3.replace( /&Auml;/g, 'Ä' );
+    var s5 = s4.replace( /&Ouml;/g, 'Ö' );
+    var s6 = s5.replace( /&Uuml;/g, 'Ü' );
+    return s6;
+}
 
 /**
  * Removes all thumbnails from the thumbnail panel
@@ -413,10 +427,9 @@ function formatRecipe( recipe ) {
     var maxWidth = maxThumbnailWidth * defaultZoom / 100;
     var maxHeight = maxThumbnailHeight * defaultZoom / 100;
     recipeBox.setAttribute( "style", "width: " + maxWidth + "px" );
-    //recipeBox.setAttribute( "onmouseover", "doRcpPopup(event, this);" );
     recipeBox.setAttribute( "data-recipe", recipe.filename );
     recipeBox.onclick = function() {
-        doRcpPopup( event, this );
+        doRecipePopup( event, this );
         return false;
     }
 
@@ -488,6 +501,45 @@ function formatRecipe( recipe ) {
     recipeBox.appendChild( captionDiv );
 
     return recipeBox;
+}
+
+/**
+ * Reformats the supplied date as yyyy-mm-dd
+ * @param {type} date
+ * @returns {undefined}
+ */
+function formatDate( date ) {
+    var dd = date.getDate();
+    var mm = date.getMonth() + 1; //January is 0!
+
+    var yyyy = date.getFullYear();
+    if ( dd < 10 ) {
+        dd = '0' + dd
+    }
+    if ( mm < 10 ) {
+        mm = '0' + mm
+    }
+    formattedDate = yyyy + "-" + mm + "-" + dd;
+    return formattedDate;
+}
+
+/**
+ * Returns the weekday as a German string
+ * @param {type} date
+ * @returns {undefined}
+ */
+function formatWeekdayGerman( date ) {
+    /*var weekday = new Array( 7 );
+    weekday[0] = "Sunday";
+    weekday[1] = "Monday";
+    weekday[2] = "Tuesday";
+    weekday[3] = "Wednesday";
+    weekday[4] = "Thursday";
+    weekday[5] = "Friday";
+    weekday[6] = "Saturday";*/
+    var weekday = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+    var index = date.getDay();
+    return weekday[date.getDay()];
 }
 
 
@@ -801,40 +853,359 @@ function findPos( obj ) {
     return [curleft, curtop];
 }
 
-//Display a named menu, at the position of another object
-function doRcpPopup( e, parent ) {
+
+/**
+ * This variable holds the reference to the recipe which caused the pop-up so that it can later
+ * be added to the Google calendar.
+ * @type type
+ */
+var popupRecipe = null;
+
+/**
+ * show the recipe popup menu
+ * @param {type} e
+ * @param {type} parent
+ * @returns {undefined}
+ */
+function doRecipePopup( e, parent ) {
     var dataRecipe = parent.getAttribute( "data-recipe" );
-    var recipe = rcpArray[dataRecipe];
-    //console.log( "mouseover on: " + recipe.name );
+    popupRecipe = rcpArray[dataRecipe];
 
-    var menu_element = document.getElementById( 'rcpPopupMenu' );
+    var rcpPopupMenu = document.getElementById( 'rcpPopupMenu' );
     //override the 'display:none;' style attribute
-    menu_element.style.display = "";
-    //get the placement of the element that invoked the menu...
-    //var placement = findPos( parent );
-    //...and put the menu there
-//	menu_element.style.left = placement[0] + 50 + "px";
-//	menu_element.style.top = placement[1] + 50 + "px";
-    menu_element.style.left = e.pageX + "px";
-    menu_element.style.top = e.pageY + "px";
-
-    var rcpPopupMenuTitle = document.getElementById( "rcpPopupMenuTitle" );
-    rcpPopupMenuTitle.innerHTML = recipe.name;
+    rcpPopupMenu.style.display = "";
+    rcpPopupMenu.style.left = e.pageX + "px";
+    rcpPopupMenu.style.top = e.pageY + "px";
 
     var rcpPopupMenuOpen = document.getElementById( "rcpPopupMenuOpen" );
     rcpPopupMenuOpen.onclick = function() {
-        window.open( RECIPES_ROOT + "/" + recipe.filename );
+        doOpenNewTab( RECIPES_ROOT + "/" + popupRecipe.filename );
+        handleEscKeyup();
     };
-    //"window.open(\"" + RECIPES_ROOT + "/" + recipe.filename + "\")";
+
+    var rcpPopupMenuPick = document.getElementById( "rcpPopupMenuPick" );
+    rcpPopupMenuPick.onclick = function() {
+        doCalendarPopup( event, this );
+    };
+
+    var rcpPopupMenuAdd = document.getElementById( "rcpPopupMenuAdd" );
+    rcpPopupMenuAdd.onclick = function() {
+        doDatePopup( event, this );
+    };
+
+    var rcpPopupCalendarGo = document.getElementById( "rcpPopupCalendarGo" );
+    rcpPopupCalendarGo.onclick = function() {
+        doOpenNewTab( "https://www.google.com/calendar/render" );
+        handleEscKeyup();
+    };
+    
+}
+
+/**
+ * Hides the rcpPopupMenu
+ * @param {type} named
+ * @returns {undefined}
+ */
+function hideRcpPopupMenu() {
+    var menu = document.getElementById( "rcpPopupMenu" );
+    menu.style.display = "none";
+}
+
+
+/**
+ * Opens the specified filename in a new tab. The RECIPES_ROOT it prepended to the filename.
+ * @param {type} filename
+ * @returns {undefined}
+ */
+function doOpenNewTab( url ) {
+    window.open( url );
+}
+
+
+/**
+ * show the calendar popup menu
+ * @param {type} e
+ * @param {type} parent
+ * @returns {undefined}
+ */
+function doCalendarPopup( e, parent ) {
+    var calendarPopupMenu = document.getElementById( 'calendarPopupMenu' );
+    //override the 'display:none;' style attribute
+    calendarPopupMenu.style.display = "";
+    calendarPopupMenu.style.left = e.pageX + "px";
+    calendarPopupMenu.style.top = e.pageY + "px";
+    hideDatePopupMenu();
+}
+
+
+/**
+ * Hides the calendarPopupMenu
+ * @param {type} named
+ * @returns {undefined}
+ */
+function hideCalendarPopupMenu() {
+    var menu = document.getElementById( "calendarPopupMenu" );
+    menu.style.display = "none";
+}
+
+
+/**
+ * show the date popup menu
+ * @param {type} e
+ * @param {type} parent
+ * @returns {undefined}
+ */
+function doDatePopup( e, parent ) {
+    var datePopupMenu = document.getElementById( 'datePopupMenu' );
+    //override the 'display:none;' style attribute
+    datePopupMenu.style.display = "";
+    datePopupMenu.style.left = e.pageX + "px";
+    datePopupMenu.style.top = e.pageY + "px";
+    hideCalendarPopupMenu();
+}
+
+
+/**
+ * Hides the datePopupMenu
+ * @param {type} named
+ * @returns {undefined}
+ */
+function hideDatePopupMenu() {
+    var menu = document.getElementById( "datePopupMenu" );
+    menu.style.display = "none";
 }
 
 
 
-//Hide a named menu
-function hide_menu( named )
-{
-    //get the named menu
-    var menu_element = document.getElementById( named );
-    //hide it with a style attribute
-    menu_element.style.display = "none";
+/**
+ * Handles an Esc keyup event and closes all popup windows
+ * @returns {undefined}
+ */
+function handleEscKeyup() {
+    hideRcpPopupMenu();
+    hideCalendarPopupMenu();
+    hideDatePopupMenu();
 }
+
+
+/**
+ * The clientId obtained from the Google API console
+ * @constant
+ * @type String
+ */
+var clientId = '727840828834.apps.googleusercontent.com';
+
+/**
+ * The apiKey obtained from the Google API console
+ * @constant
+ * @type String
+ */
+var apiKey = 'AIzaSyC-REjbFztx8AQ9j6WCrN1CWTRSlQ95aUE';
+
+/**
+ * The scopes required from the Google API
+ * @constant
+ * @type String
+ */
+var scopes = 'https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar';
+
+/**
+ * This is where the callback lands when the google client code has finished loading.
+ * I call checkAuth and set a timer so that checkAuth is called every 55 minutes. This
+ * is so that we keep getting a refresh token and the session doesn't expire.
+ * @returns {undefined}
+ */
+function googleApiInit() {
+    gapi.client.setApiKey( apiKey );
+
+    // wire up the login and logout handlers
+    var signInButton = document.getElementById( "signInButton" );
+    signInButton.onclick = handleAuthClick;
+    var googlePicture = document.getElementById( "googlePicture" );
+    googlePicture.onclick = handleLogoutClick;
+
+    // set timeout to the checkAuth methos so that we get a refreshed token every 55 minutes
+    window.setTimeout( checkAuth, 55 * 60 * 1000 );
+    checkAuth();
+}
+
+/**
+ * Connects to Google and tells them what we want.
+ * @returns {undefined}
+ */
+function checkAuth() {
+    console.log( 'checkAuth: scopes: ' + scopes );
+    gapi.auth.authorize( {client_id: clientId, scope: scopes, immediate: true}, handleAuthResult );
+}
+
+
+/**
+ * This is where we land when checkAuth has finished.
+ * Here we make the appropriate widgets visibe or not.
+ * @param {type} authResult
+ * @returns {undefined}
+ */
+function handleAuthResult( authResult ) {
+    var authorizeButton = document.getElementById( 'authorize-button' );
+    var logoutButton = document.getElementById( 'logoutButton' );
+    if ( authResult && !authResult.error ) {
+        updateLoginState( true );
+        fetchGoogleData();
+    } else {
+        updateLoginState( false );
+    }
+}
+
+/**
+ * This method updates the UI elements according to the Google 
+ * API log in state.
+ * @param {type} state Send true if logged in, false if logged out.
+ * @returns {undefined}
+ */
+function updateLoginState( state ) {
+    var rcpPopulMenuLogon = document.getElementById( "rcpPopulMenuLogon" );
+    var rcpPopupMenuPick = document.getElementById( "rcpPopupMenuPick" );
+    var rcpPopupMenuAdd = document.getElementById( "rcpPopupMenuAdd" );
+    var rcpPopupCalendarGo = document.getElementById( "rcpPopupCalendarGo" );
+    var signInButton = document.getElementById( "signInButton" );
+    if ( state ) {
+        console.log( "We are logged in to Google" );
+        rcpPopulMenuLogon.style.display = "none";
+        rcpPopupMenuPick.style.display = ""; // i.e. show it
+        rcpPopupMenuAdd.style.display = ""; // i.e. show it
+        rcpPopupCalendarGo.style.display = ""; // i.e. show it
+        signInButton.style.display = "none";
+        
+    } else {
+        console.log( "We are not logged in to Google" );
+        rcpPopulMenuLogon.style.display = ""; // i.e. show it
+        rcpPopulMenuLogon.onclick = handleAuthClick;
+        rcpPopupMenuPick.style.display = "none";
+        rcpPopupMenuAdd.style.display = "none";
+        rcpPopupCalendarGo.style.display = "none";
+        signInButton.style.display = "";
+        var googlePicture = document.getElementById( "googlePicture" );
+        googlePicture.style.display = "none";
+    }
+}
+
+/**
+ * Bring up the google login dialog. Then calls handleAuthResult which 
+ * then calls updateLoginState that does the UI stuff
+ * @param {type} event
+ * @returns {Boolean}
+ */
+function handleAuthClick( event ) {
+    gapi.auth.authorize( {client_id: clientId, scope: scopes, immediate: false}, handleAuthResult );
+    return false;
+}
+
+/**
+ * Logs us out from the recipe page
+ * @param {type} event
+ * @returns {Boolean}
+ */
+function handleLogoutClick( event ) {
+    var logoutFrame = document.createElement( "iframe" );
+    logoutFrame.src = "https://accounts.google.com/logout";
+    logoutFrame.setAttribute( "style", "display: none" );
+    document.body.appendChild( logoutFrame );
+    updateLoginState( false );
+    return false;
+}
+
+/**
+ * Makes Google API requests to retrieve the image of the user
+ * and the names of his calendars.
+ * @returns {undefined}
+ */
+function fetchGoogleData() {
+    gapi.client.load( 'plus', 'v1', function() {
+        var request = gapi.client.plus.people.get( {
+            'userId': 'me'
+        } );
+        request.execute( function( resp ) {
+            var googlePicture = document.getElementById( "googlePicture" );
+            googlePicture.src = resp.image.url;
+            googlePicture.style.display = "";
+        } );
+    } );
+
+    gapi.client.load( 'calendar', 'v3', function() {
+        var request = gapi.client.calendar.calendarList.list( {
+        } );
+        request.execute( function( resp ) {
+            var calendarPopupMenu = document.getElementById( 'calendarPopupMenu' );
+            calendarPopupMenu.innerHTML = "";
+            var ul = document.createElement( "ul" );
+            calendarPopupMenu.appendChild( ul );
+
+            var items = resp.items;
+            for ( var i = 0, len = items.length; i < len; i++ ) {
+                var li = document.createElement( "li" );
+                li.setAttribute( "id", items[i].id );
+                li.appendChild( document.createTextNode( items[i].summary ) );
+                ul.appendChild( li );
+
+                li.onclick = function() {
+                    clickCalendar( this.id );
+                    return false;
+                };
+            }
+            highlightCalendarInPopup();
+        } );
+    } );
+}
+
+
+function clickCalendar( id ) {
+    console.log( "clicked on calendar: " + id );
+    localStorage.setItem( "googleCalendarId", id );
+    highlightCalendarInPopup();
+    handleEscKeyup();
+}
+
+/**
+ * This method identifies the entry in the calendar popup menu and gives it a different class
+ * @returns {undefined}
+ */
+function highlightCalendarInPopup() {
+    var googleCalendarId = localStorage.getItem( "googleCalendarId" );
+    var calendarPopupMenu = document.getElementById( 'calendarPopupMenu' ).children[0];
+    for ( var i = 0, len = calendarPopupMenu.children.length; i < len; i++ ) {
+        var li = calendarPopupMenu.children[i];
+        if ( li.id === googleCalendarId ) {
+            li.setAttribute( "class", "selected" );
+        } else {
+            li.setAttribute( "class", "" );
+        }
+    }
+}
+
+
+function createCalendarEntry( clickedDateElement ) {
+    var calendarId = localStorage.getItem( "googleCalendarId" );
+    console.log( "Going to create entry on calendar: " + calendarId );
+    
+    var theDate = clickedDateElement.getAttribute("data-date");
+
+    gapi.client.load( 'calendar', 'v3', function() {
+        var request = gapi.client.calendar.events.insert( {
+            'calendarId': calendarId,
+            'resource': {
+                "start": {"date": theDate },
+                "end": {"date": theDate},
+                "summary": decodeUmlautCharacters(popupRecipe.name),
+                "location": RECIPES_ROOT + "/" + popupRecipe.filename
+            }
+        } );
+        request.execute( function( resp ) {
+            if ( resp.id ) {
+                handleEscKeyup();
+            } else {
+                alert( "Rezept nicht in den Kalender eingef&uuml;gt: " + resp  );
+            }
+        } );
+    } );
+}
+

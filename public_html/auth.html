@@ -47,10 +47,12 @@
             var scopes = 'https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar';
 
             // Use a button to handle authentication the first time.
-            function handleClientLoad() {
+            function googleApiInit() {
+                console.log("handleClientLoad");
                 gapi.client.setApiKey( apiKey );
                 // set timeout to the checkAuth methos so that we get a refreshed token every 55 minutes
                 window.setTimeout( checkAuth, 55*60*1000 );
+                checkAuth();
             }
 
             function checkAuth() {
@@ -148,7 +150,7 @@
                 } );
             }
         </script>
-        <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+        <script src="https://apis.google.com/js/client.js?onload=googleApiInit"></script>
         <div id="content"></div>
         <p>Retrieves your profile name using the Google Plus API.</p>
     </body>
