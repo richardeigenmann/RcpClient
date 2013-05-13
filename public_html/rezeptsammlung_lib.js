@@ -26,15 +26,91 @@ var maxThumbnailWidth = 400;
 var maxThumbnailHeight = 300;
 
 
-function logStatus( message ) {
-    console.log( message );
-}
 
 /**
  * Static global variable where we store all recipes
  * @type @exp;JSON@call;parse|@exp;JSON@call;parse
  */
 var rcpArray;
+
+/**
+ * a static global variable where we store the recipes grouped by Category Type
+ * then by category and then by recipe filename in the category.
+ * @type type
+ * @see buildIndex
+ */
+var index = {};
+
+
+/**
+ * Main entry point
+ */
+window.onload = function() {
+    var zoomSlider = document.getElementById( "zoomSlider" );
+    defaultZoom = zoomSlider.value;
+
+    /* prevent the search from submitting */
+    var form = document.getElementById( 'searchForm' );
+    if ( form.attachEvent ) {
+        form.attachEvent( "submit", processForm );
+    } else {
+        form.addEventListener( "submit", processForm );
+    }
+
+    // set up an escape key handler
+    $( document ).keyup( function( e ) {
+        if ( e.keyCode == 27 ) {
+            handleEscKeyup();
+        }
+    } );
+
+
+    // populate the calendar menu items
+    var datePopupMenu = document.getElementById( 'datePopupMenu' );
+    var ul = datePopupMenu.children[0];
+    var today = new Date();
+    ul.children[0].setAttribute( "data-date", formatDate( today ) );
+    var tomorrow = new Date( today.getTime() + 24 * 60 * 60 * 1000 );
+    ul.children[1].setAttribute( "data-date", formatDate( tomorrow ) );
+    var twodays = new Date( today.getTime() + 2 * 24 * 60 * 60 * 1000 );
+    ul.children[2].setAttribute( "data-date", formatDate( twodays ) );
+    var threedays = new Date( today.getTime() + 3 * 24 * 60 * 60 * 1000 );
+    ul.children[3].setAttribute( "data-date", formatDate( threedays ) );
+    ul.children[3].innerHTML = formatWeekdayGerman( threedays );
+    var fouredays = new Date( today.getTime() + 4 * 24 * 60 * 60 * 1000 );
+    ul.children[4].setAttribute( "data-date", formatDate( fouredays ) );
+    ul.children[4].innerHTML = formatWeekdayGerman( fouredays );
+    var fivedays = new Date( today.getTime() + 5 * 24 * 60 * 60 * 1000 );
+    ul.children[5].setAttribute( "data-date", formatDate( fivedays ) );
+    ul.children[5].innerHTML = formatWeekdayGerman( fivedays );
+    var sixdays = new Date( today.getTime() + 6 * 24 * 60 * 60 * 1000 );
+    ul.children[6].setAttribute( "data-date", formatDate( sixdays ) );
+    ul.children[6].innerHTML = formatWeekdayGerman( sixdays );
+    var sevendays = new Date( today.getTime() + 7 * 24 * 60 * 60 * 1000 );
+    ul.children[7].setAttribute( "data-date", formatDate( sevendays ) );
+    ul.children[7].innerHTML = formatWeekdayGerman( sevendays );
+    var eightdays = new Date( today.getTime() + 8 * 24 * 60 * 60 * 1000 );
+    ul.children[8].setAttribute( "data-date", formatDate( eightdays ) );
+    ul.children[8].innerHTML = formatWeekdayGerman( eightdays );
+    fetchData();
+};
+
+/**
+ *  function to stop the search form submitting and do a search instead
+ */
+function processForm( e ) {
+    if ( e.preventDefault )
+        e.preventDefault();
+    doSearch();
+    return false;
+}
+
+
+/**
+ * Checks if the data is already in the localStorage or whther there are new recipes
+ * on the server that necessitate a fresh download.
+ * @returns {undefined}
+ */
 function fetchData() {
     var lastFetch = localStorage.getItem( "rcpLastFetch" );
     if ( lastFetch == null ) {
@@ -46,9 +122,9 @@ function fetchData() {
             fullFetch();  // because we don't have any data
         } else {
             // check if there is anything new
-            logStatus( "We have the recpies cached, but checking if there are any new ones..." );
+            console.log( "We have the recpies cached, but checking if there are any new ones..." );
             var url = ENUMERATION_URL + "?startfrom=" + lastFetch;
-            logStatus( "Connecting to: " + url );
+            console.log( "Connecting to: " + url );
             document.getElementById( "serverdetails" );
             serverdetails.innerHTML = url;
             var request = new XMLHttpRequest();
@@ -57,7 +133,7 @@ function fetchData() {
                 if ( request.status == 200 ) {
                     //console.log( "Response: " + request.responseText );
                     if ( request.responseText != "null" ) {
-                        logStatus( "New recipes found. Wiping local store..." );
+                        console.log( "New recipes found. Wiping local store..." );
                         // removeItem is better because otherwise we remove all data for the domain name
                         localStorage.removeItem( "rcpLastFetch" );
                         localStorage.removeItem( "rcpArray" );
@@ -75,8 +151,13 @@ function fetchData() {
     }
 }
 
+/**
+ * This method makes an XMLHttpRequest to the PHP script on the recipe server to download
+ * all the recipe metafata as a JSON stream.
+ * @returns {undefined}
+ */
 function fullFetch() {
-    logStatus( "Full Download. Connecting to: " + ENUMERATION_URL );
+    console.log( "Full Download. Connecting to: " + ENUMERATION_URL );
 
     var request = new XMLHttpRequest();
     request.open( "GET", ENUMERATION_URL );
@@ -89,7 +170,7 @@ function fullFetch() {
             buildIndex();
             loadHandler();  // in the page specific js file
         } else {
-            logStatus( "Request failed with response: " + request.status );
+            console.log( "Request failed with response: " + request.status );
         }
     };
     request.send( null );
@@ -115,14 +196,14 @@ function loadHandler() {
 
 
 
-var index = {};
+
 /**
  * Builds the index object
  * @returns {unresolved}
  */
 function buildIndex() {
     if ( rcpArray == null ) {
-        logStatus( "The recipe Array is null!" );
+        console.log( "The recipe Array is null!" );
         return;
     }
 
@@ -149,10 +230,10 @@ function buildIndex() {
  * Render the rcpArray as a table
  * @param {type} targetDiv the div element ot which the list should be added
  * @returns {unresolved}
- */
+ *
 function renderDebug( targetDiv ) {
     if ( rcpArray == null ) {
-        logStatus( "The recipe Array is null!" );
+        console.log( "The recipe Array is null!" );
         return;
     }
 
@@ -190,7 +271,7 @@ function renderDebug( targetDiv ) {
     }
     table += "</table>";
     targetDiv.innerHTML = table;
-}
+}*/
 
 
 
@@ -434,10 +515,6 @@ function formatRecipe( recipe ) {
         return false;
     }
 
-    //var recipeHyperlink = document.createElement( "a" );
-    //recipeHyperlink.setAttribute( 'href', RECIPES_ROOT + "/" + recipe.filename );
-    //recipeBox.appendChild( recipeHyperlink );
-
     var thumbnailBox = document.createElement( "div" );
     recipeBox.appendChild( thumbnailBox );
 
@@ -460,7 +537,6 @@ function formatRecipe( recipe ) {
             break;
     }
     starsImg.setAttribute( "src", "http://richieigenmann.users.sourceforge.net/" + starsUrl );
-    //thumbnailBox.appendChild( starsImg );
 
     var starsCanvas = document.createElement( "canvas" );
     starsCanvas.className = "stars";
@@ -498,7 +574,6 @@ function formatRecipe( recipe ) {
     var captionDiv = document.createElement( "div" );
     captionDiv.className = "normaltext";
     captionDiv.innerHTML = recipe.name;
-    //recipeHyperlink.appendChild( captionDiv );
     recipeBox.appendChild( captionDiv );
 
     return recipeBox;
@@ -530,14 +605,6 @@ function formatDate( date ) {
  * @returns {undefined}
  */
 function formatWeekdayGerman( date ) {
-    /*var weekday = new Array( 7 );
-     weekday[0] = "Sunday";
-     weekday[1] = "Monday";
-     weekday[2] = "Tuesday";
-     weekday[3] = "Wednesday";
-     weekday[4] = "Thursday";
-     weekday[5] = "Friday";
-     weekday[6] = "Saturday";*/
     var weekday = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
     var index = date.getDay();
     return weekday[date.getDay()];
@@ -584,11 +651,11 @@ function drawStar( ctx, x, y ) {
 
 
 /**
- * Returns a more button
+ * Returns a more button with the next index position at which we can add more
+ * Thumbs in the data-startindex attribute.
  * @returns the element for the more button
  */
 function makeMoreBox( startIndex ) {
-
     var buttonnode = document.createElement( 'input' );
     buttonnode.setAttribute( 'type', 'button' );
     buttonnode.setAttribute( 'name', 'more' );
@@ -597,22 +664,32 @@ function makeMoreBox( startIndex ) {
     buttonnode.setAttribute( 'data-startindex', startIndex );
 
     buttonnode.onclick = function() {
-        rawMoreButtonClick( this );
+        handleMoreButtonClick( this );
         return false;
     };
     return buttonnode;
 }
 
 
-function rawMoreButtonClick( button ) {
+/**
+ * The onclick event of the more button fires this method which will remove the
+ * button from the DOM and will parse out the data-startindex attribute which will 
+ * add the next set of thumbnails to the DOM.
+ * @param {type} button
+ * @returns {undefined}
+ */
+function handleMoreButtonClick( button ) {
     button.parentNode.removeChild( button );
     moreButtonClick( parseInt( button.getAttribute( 'data-startindex' ) ) );
 }
 
+/**
+ * Adds LIMIT_THUMBS number of thumbnails to the right panel
+ * @param {type} startIndex
+ * @returns {undefined}
+ */
 function moreButtonClick( startIndex ) {
-    //alert( "type: " + moreType + " startIndex: " + startIndex );
     var container = document.getElementById( "rightPanel" );
-
     for ( var i = startIndex, len = Math.min( showingArray.length, startIndex + LIMIT_THUMBS ); i < len; i++ ) {
         var recipe = showingArray[i];
         container.appendChild( formatRecipe( recipe ) );
@@ -626,7 +703,6 @@ function moreButtonClick( startIndex ) {
         fadeInTime: 200,
         horizontalAlign: "center",
         verticalAlign: "center"} );
-
 }
 
 /**
@@ -654,16 +730,15 @@ function updateSlider( slideAmount ) {
             for ( var j = 0, lenj = smallTextElements.length; j < lenj; j++ ) {
                 smallTextElements[j].className = "normaltext";
             }
-
         }
     }
 }
 
-function getScaledLength( originalLength, ratio ) {
+/*function getScaledLength( originalLength, ratio ) {
     return (originalLength / ratio);
-}
+}*/
 
-function getScalingRatio( width, height, maxWidth, maxHeight ) {
+/*function getScalingRatio( width, height, maxWidth, maxHeight ) {
 // Scale so that the entire picture fits in the component.
     var hightratio = height / maxHeight;
     var widthratio = width / maxWidth;
@@ -676,16 +751,21 @@ function getScalingRatio( width, height, maxWidth, maxHeight ) {
         ratio = widthratio;
     }
     return ratio;
-}
+}*/
 
 
+/**
+ * This method gets fired when the user has finished typing something into
+ * the search box.
+ * @returns {undefined}
+ */
 function doSearch() {
     var inputField = document.getElementById( "searchStringBox" );
     var searchString = inputField.value;
     if ( searchString == "" ) {
-        logStatus( "Please enter a search string" );
+        console.log( "Please enter a search string" );
     } else {
-        logStatus( "Searching for: " + searchString );
+        console.log( "Searching for: " + searchString );
     }
 
     var cleanSearchString = rabidCleanString( searchString );
@@ -717,9 +797,8 @@ function doSearch() {
     var uniqSortedSearchResults = searchResults.filter( function( elem, pos ) {
         return searchResults.indexOf( elem ) == pos;
     } ).sort( recipeCompare );
-    ;
 
-    logStatus( "Found: " + uniqSortedSearchResults.length + " " + alsoFoundText );
+    console.log( "Found: " + uniqSortedSearchResults.length + " " + alsoFoundText );
 
     clearThumbnailPanel();
     scrollThumbsToTop();
@@ -803,7 +882,8 @@ function leftPad( num ) {
     }
 }
 
-function auth() {
+
+/*function auth() {
     console.log( 'firing auth' );
     var config = {
         'client_id': '727840828834.apps.googleusercontent.com',
@@ -833,7 +913,7 @@ function makeRequest() {
     request.execute( function( response ) {
         appendResults( response.shortUrl );
     } );
-}
+}*/
 
 
 /**
@@ -1167,6 +1247,12 @@ function fetchGoogleData() {
 }
 
 
+/**
+ * This method is fired when the user clicks on one of the calendar entries. We 
+ * the store the id of the calendar in the localStorage and clear all popup menus.
+ * @param {type} id
+ * @returns {undefined}
+ */
 function clickCalendar( id ) {
     console.log( "clicked on calendar: " + id );
     localStorage.setItem( "googleCalendarId", id );
@@ -1191,7 +1277,13 @@ function highlightCalendarInPopup() {
     }
 }
 
-
+/**
+ * Creates a calendar entry in the the calendar of the logged in user
+ * on the calendar identified in the localStorage for the recipe on which
+ * the entry was fired.
+ * @param {type} clickedDateElement
+ * @returns {undefined}
+ */
 function createCalendarEntry( clickedDateElement ) {
     var calendarId = localStorage.getItem( "googleCalendarId" );
     console.log( "Going to create entry on calendar: " + calendarId );
