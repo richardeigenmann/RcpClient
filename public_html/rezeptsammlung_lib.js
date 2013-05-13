@@ -41,7 +41,8 @@ function fetchData() {
         fullFetch();
     } else {
         var rcpData = localStorage.getItem( "rcpArray" );
-        if ( rcpData == null ) {
+        if ( (rcpData == null) || (rcpData.length < 200) ) {
+            console.log( "LocalStorage is null or shorter than 200 chars --> fullFetch" );
             fullFetch();  // because we don't have any data
         } else {
             // check if there is anything new
@@ -530,13 +531,13 @@ function formatDate( date ) {
  */
 function formatWeekdayGerman( date ) {
     /*var weekday = new Array( 7 );
-    weekday[0] = "Sunday";
-    weekday[1] = "Monday";
-    weekday[2] = "Tuesday";
-    weekday[3] = "Wednesday";
-    weekday[4] = "Thursday";
-    weekday[5] = "Friday";
-    weekday[6] = "Saturday";*/
+     weekday[0] = "Sunday";
+     weekday[1] = "Monday";
+     weekday[2] = "Tuesday";
+     weekday[3] = "Wednesday";
+     weekday[4] = "Thursday";
+     weekday[5] = "Friday";
+     weekday[6] = "Saturday";*/
     var weekday = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
     var index = date.getDay();
     return weekday[date.getDay()];
@@ -871,6 +872,14 @@ function doRecipePopup( e, parent ) {
     var dataRecipe = parent.getAttribute( "data-recipe" );
     popupRecipe = rcpArray[dataRecipe];
 
+    var rcpPopupMenuAdd = document.getElementById( 'rcpPopupMenuAdd' );
+    if ( localStorage.getItem( "googleCalendarId" ) == null ) {
+        rcpPopupMenuAdd.style.display = "none";
+    } else {
+        rcpPopupMenuAdd.style.display = "";
+    }
+
+
     var rcpPopupMenu = document.getElementById( 'rcpPopupMenu' );
     //override the 'display:none;' style attribute
     rcpPopupMenu.style.display = "";
@@ -898,7 +907,7 @@ function doRecipePopup( e, parent ) {
         doOpenNewTab( "https://www.google.com/calendar/render" );
         handleEscKeyup();
     };
-    
+
 }
 
 /**
@@ -1075,7 +1084,7 @@ function updateLoginState( state ) {
         rcpPopupMenuAdd.style.display = ""; // i.e. show it
         rcpPopupCalendarGo.style.display = ""; // i.e. show it
         signInButton.style.display = "none";
-        
+
     } else {
         console.log( "We are not logged in to Google" );
         rcpPopulMenuLogon.style.display = ""; // i.e. show it
@@ -1186,16 +1195,16 @@ function highlightCalendarInPopup() {
 function createCalendarEntry( clickedDateElement ) {
     var calendarId = localStorage.getItem( "googleCalendarId" );
     console.log( "Going to create entry on calendar: " + calendarId );
-    
-    var theDate = clickedDateElement.getAttribute("data-date");
+
+    var theDate = clickedDateElement.getAttribute( "data-date" );
 
     gapi.client.load( 'calendar', 'v3', function() {
         var request = gapi.client.calendar.events.insert( {
             'calendarId': calendarId,
             'resource': {
-                "start": {"date": theDate },
+                "start": {"date": theDate},
                 "end": {"date": theDate},
-                "summary": decodeUmlautCharacters(popupRecipe.name),
+                "summary": decodeUmlautCharacters( popupRecipe.name ),
                 "location": RECIPES_ROOT + "/" + popupRecipe.filename
             }
         } );
@@ -1203,7 +1212,7 @@ function createCalendarEntry( clickedDateElement ) {
             if ( resp.id ) {
                 handleEscKeyup();
             } else {
-                alert( "Rezept nicht in den Kalender eingef&uuml;gt: " + resp  );
+                alert( "Rezept nicht in den Kalender eingef&uuml;gt: " + resp );
             }
         } );
     } );

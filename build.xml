@@ -6,11 +6,10 @@
     
     <target name="pushAll" depends="cleanup" description="Push to all locations">
         <antcall target="pushLocalhost" />
-        <!-- <antcall target="pushSourceforge" /> -->
+        <antcall target="pushSourceforge" /> 
         <!-- <antcall target="pushWarrior" /> -->
-        <!-- <antcall target="pushIndian" /> -->
         <!-- <antcall target="pushKatana" /> -->
-        <!-- <antcall target="pushLomumba" /> -->
+        <antcall target="pushLomumba" />
     </target>   	
     
     <target name="pushLocalhost" depends="checkroot, cleanup" description="Pushes the files to the Localhost">
@@ -46,13 +45,7 @@
         <antcall target="unmountFs" />
     </target>
 
-    <target name="pushIndian" depends="checkroot, cleanup" description="Pushes the files to Indian using sshfs">
-        <property name="sshDrive" value="root@indian:/srv/www/htdocs/Homepage" />
-        <property name="targetRoot" value="/mnt" />
-        <antcall target="mountSshFs" />
-        <antcall target="pushFiles" />
-        <antcall target="unmountFs" />
-    </target>
+
 
     <target name="pushKatana" depends="checkroot, cleanup" description="Pushes the files to Katana using sshfs">
         <property name="sshDrive" value="root@katana:/srv/www/htdocs/Homepage" />
@@ -71,6 +64,11 @@
     <target name="pushLomumba" depends="checkroot, cleanup" description="Pushes the files to Lomumba using sshfs">
         <property name="sshDrive" value="root@pat.lomumba.ch:/www/lomumba/phpwcms/richi/" />
         <property name="targetRoot" value="/mnt" />
+
+        <property name="serverRoot" value="http://pat.lomumba.ch/richi/"/>
+        <property name="enumerationUrl" value="${serverRoot}recipeinfo.php"/>
+        <property name="recipesRoot" value="${serverRoot}"/>
+        
         <antcall target="mountSshFs">
             <param name="sshPort" value="-p11222"/>
         </antcall>
