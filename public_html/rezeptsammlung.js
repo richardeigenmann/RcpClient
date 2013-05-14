@@ -122,10 +122,10 @@ function fetchData() {
             fullFetch();  // because we don't have any data
         } else {
             // check if there is anything new
-            console.log( "We have the recpies cached, but checking if there are any new ones..." );
+            console.log( "We have the recipes cached, but checking if there are any new ones..." );
             var url = ENUMERATION_URL + "?startfrom=" + lastFetch;
             console.log( "Connecting to: " + url );
-            document.getElementById( "serverdetails" );
+            var serverdetails = document.getElementById( "serverdetails" );
             serverdetails.innerHTML = url;
             var request = new XMLHttpRequest();
             request.open( "GET", ENUMERATION_URL + "?startfrom=" + lastFetch );
@@ -402,7 +402,7 @@ function clearThumbnailPanel() {
  *  This function takes the supplied object of recipe objects and appends 
  *  them to the indicated dom object
  * @param {type} recipeCollection  The array of recipies to be added
- * @param {type} container the dom object to which the recpies are to be added
+ * @param {type} container the dom object to which the recipes are to be added
  * @returns {undefined} nothing.
  */
 function renderThumbs( recipeCollection, container ) {
@@ -461,8 +461,10 @@ function formatRecipe( recipe ) {
     var maxHeight = maxThumbnailHeight * defaultZoom / 100;
     recipeBox.setAttribute( "style", "width: " + maxWidth + "px" );
     recipeBox.setAttribute( "data-recipe", recipe.filename );
-    recipeBox.onclick = function() {
-        doRecipePopup( event, this );
+    recipeBox.onclick = function( evt ) {
+	// work around Firefox quirk
+	var myEvent = ((window.event)?(event):(evt));
+        doRecipePopup( myEvent, this );
         return false;
     }
 
@@ -871,13 +873,17 @@ function doRecipePopup( e, parent ) {
     };
 
     var rcpPopupMenuPick = document.getElementById( "rcpPopupMenuPick" );
-    rcpPopupMenuPick.onclick = function() {
-        doCalendarPopup( event, this );
+    rcpPopupMenuPick.onclick = function(evt) {
+	// work around Firefox quirk
+	var myEvent = ((window.event)?(event):(evt));
+        doCalendarPopup( myEvent, this );
     };
 
     var rcpPopupMenuAdd = document.getElementById( "rcpPopupMenuAdd" );
-    rcpPopupMenuAdd.onclick = function() {
-        doDatePopup( event, this );
+    rcpPopupMenuAdd.onclick = function(evt) {
+	// work around Firefox quirk
+	var myEvent = ((window.event)?(event):(evt));
+        doDatePopup( myEvent, this );
     };
 
     var rcpPopupCalendarGo = document.getElementById( "rcpPopupCalendarGo" );
