@@ -70,7 +70,7 @@ if heightInt < 10 or heightInt > 600:
 	respondError( "Parameter height is out of range 10 to 600")
 
 
-# if we got this far then we have good parameter ans can read the image and scale and crop
+# if we got this far then we have good parameter and can read the image and scale and crop
 im = Image.open( recipePath + filename)
 im = ImageOps.fit( im,( widthInt, heightInt ), Image.NEAREST, 0, (0.5,0.5) )
 # looks like I need to save the image so that it can be opened and printede
