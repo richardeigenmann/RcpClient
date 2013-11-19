@@ -27,7 +27,7 @@
         <property name="sshDrive" value="richieigenmann@frs.sourceforge.net:/home/user-web/richieigenmann/htdocs" />
         <property name="targetRoot" value="/mnt" />
         
-        <property name="serverRoot" value="http://richieigenmann.users.sourceforge.net/"/>
+        <property name="serverRoot" value="http://richieigenmann.users.sourceforge.net"/>
         <property name="enumerationUrl" value="${serverRoot}recipeinfo.php"/>
         <property name="recipesRoot" value="${serverRoot}"/>
         
