@@ -48,6 +48,8 @@ angular.module('recipeApp', ['ngSanitize'])
         .factory('recipeLoaderFactory', ['$http', 'applicationDataFactory',
             function lastDateFactory($http, applicationDataFactory) {
                 var loaderStatus = "Loader starting up...";
+                //localStorage.removeItem("lastModifiedDate");
+                //localStorage.removeItem("recipes");
 
                 $http.get(SERVER_LAST_MODIFIED_URL).then(function (response) {
                     var serverLastModified = new Date(Date.parse(response.data.lastRecipeModified));
@@ -57,9 +59,14 @@ angular.module('recipeApp', ['ngSanitize'])
                         $http.get(SERVER_RECIPES_URL).then(function (response2) {
                             localStorage.setItem("lastModifiedDate", serverLastModified);
                             var recipes = response2.data;
-                            applicationDataFactory.setResultSet(recipes);
+                            applicationDataFactory.setAllRecipes(recipes);
                             loaderStatus = "Downloaded from server";
                             localStorage.setItem("recipes", JSON.stringify(recipes));
+                        }, function (err) {
+                            loaderStatus = "Error downloading: " + err;
+                            console.log('ERR', err);
+                            alert(err);
+
                         });
 
                     } else {
@@ -68,6 +75,11 @@ angular.module('recipeApp', ['ngSanitize'])
                         applicationDataFactory.setAllRecipes(parsedRecipes);
                         loaderStatus = "Loaded from browser localStorage";
                     }
+                }, function (err) {
+                    loaderStatus = "Error checking: " + err;
+                    console.log('ERR', err);
+                    alert(err);
+
                 });
 
                 return {
