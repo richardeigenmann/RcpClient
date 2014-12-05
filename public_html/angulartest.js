@@ -4,13 +4,37 @@ var SERVER_RECIPES_URL = 'recipes.json';
 
 angular.module('recipeApp', ['ngSanitize'])
         .factory('applicationDataFactory', [function applicationDataFactory() {
-                var resultSet = {"Rcp001.htm": {"filename": "Rcp001.htm", "name": "Beeren-Tiramisu", "imageFilename": "Rcp001.jpg", "width": "400", "height": "294", "categories": {"Speise-Kategorie": ["Desserts", "Vegetarisch"], "Zutat": ["L&ouml;ffelbisquits", "QimiQ", "Milch", "Mascarpone", "Zitronen", "Vollrahm", "Zucker", "Mandelsplitter"], "Bewertung": ["4 Sterne"], "Quelle": ["Lilian Stross"]}}};
+                var allRecipes = {"Rcp001.htm": {"filename": "Rcp001.htm", "name": "Beeren-Tiramisu", "imageFilename": "Rcp001.jpg", "width": "400", "height": "294", "categories": {"Speise-Kategorie": ["Desserts", "Vegetarisch"], "Zutat": ["L&ouml;ffelbisquits", "QimiQ", "Milch", "Mascarpone", "Zitronen", "Vollrahm", "Zucker", "Mandelsplitter"], "Bewertung": ["4 Sterne"], "Quelle": ["Lilian Stross"]}}};
+                var index = {};
+
+                function buildCategories() {
+                    for (var key in allRecipes) {
+                        var recipe = allRecipes[key];
+                        for (var category in recipe.categories) {
+                            if (index[category] == null) {
+                                index[category] = {};
+                            }
+                            for (var i = 0, len = recipe.categories[category].length; i < len; i++) {
+                                var member = recipe.categories[category][i];
+                                if (index[category][member] == null) {
+                                    index[category][member] = [];
+                                }
+                                index[category][member].push(key);
+                            }
+                        }
+                    }
+                }
+
                 return {
-                    getResultSet: function () {
-                        return resultSet;
+                    getAllRecipes: function () {
+                        return allRecipes;
                     },
-                    setResultSet: function (newResultSet) {
-                        resultSet = newResultSet;
+                    setAllRecipes: function (newAllRecipes) {
+                        allRecipes = newAllRecipes;
+                        buildCategories();
+                    },
+                    getIndex: function () {
+                        return index;
                     }
                 }
             }
@@ -41,7 +65,7 @@ angular.module('recipeApp', ['ngSanitize'])
                     } else {
                         loaderStatus = "Loading from browser localStorage...";
                         var parsedRecipes = JSON.parse(localStorage.getItem("recipes"));
-                        applicationDataFactory.setResultSet(parsedRecipes);
+                        applicationDataFactory.setAllRecipes(parsedRecipes);
                         loaderStatus = "Loaded from browser localStorage";
                     }
                 });
@@ -59,12 +83,19 @@ angular.module('recipeApp', ['ngSanitize'])
                 self.results = 0;
 
                 $scope.$watch(function () {
-                    return applicationDataFactory.getResultSet()
+                    return applicationDataFactory.getAllRecipes()
                 }, function (newVal, oldVal) {
                     if (typeof newVal !== 'undefined') {
-                        self.recipes = applicationDataFactory.getResultSet();
+                        self.recipes = applicationDataFactory.getAllRecipes();
                         self.results = Object.keys(self.recipes).length;
-                        //$(".imgLiquidFill").imgLiquid();
+                    }
+                });
+
+                $scope.$watch(function () {
+                    return applicationDataFactory.getIndex()
+                }, function (newVal, oldVal) {
+                    if (typeof newVal !== 'undefined') {
+                        self.index = applicationDataFactory.getIndex();
                     }
                 });
 
@@ -75,12 +106,6 @@ angular.module('recipeApp', ['ngSanitize'])
                         self.loaderStatus = recipeLoaderFactory.getLoaderStatus();
                     }
                 });
-
-                $scope.$on('onRepeatLast', function (scope, element, attrs) {
-                    console.log("Calling imgLiquid");
-                    $(".imgLiquidFill").imgLiquid();
-                });
-
 
             }
         ])
@@ -95,6 +120,66 @@ angular.module('recipeApp', ['ngSanitize'])
             }
         ])
         .directive("drawstars", function () {
+
+            /**
+             * Originally found this page: http://programmingthomas.wordpress.com/2012/05/16/drawing-stars-with-html5-canvas/
+             * This draws a star using parametrised radius and spike length. I fear that doing all those floating point 
+             * calculations could be really slow so I have "pre-rendered" the calculations into this function for a small star.
+             * @param {type} ctx
+             * @param {type} x
+             * @param {type} y
+             * @returns {undefined}
+             */
+            function drawStar(ctx, x, y) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.translate(x, y);
+                ctx.moveTo(0, -10);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -4.5);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -10);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -4.5);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -10);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -4.5);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -10);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -4.5);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -10);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -4.5);
+                ctx.rotate(0.6283185307179586);
+                ctx.lineTo(0, -10);
+                ctx.fill();
+                ctx.restore();
+            }
+
+
+            function drawStars(starsString, ctx) {
+                ctx.fillStyle = "gold";
+                if (starsString === "4 Sterne") {
+                    ctx.fillStyle = "red";
+                }
+                drawStar(ctx, 71, 11);
+                if (starsString === "3 Sterne") {
+                    ctx.fillStyle = "red";
+                }
+                drawStar(ctx, 51, 11);
+                if (starsString === "2 Sterne") {
+                    ctx.fillStyle = "red";
+                }
+                drawStar(ctx, 31, 11);
+                if (starsString === "1 Stern") {
+                    ctx.fillStyle = "red";
+                }
+                drawStar(ctx, 11, 11);
+            }
+
             return {
                 restrict: "A",
                 scope: {
@@ -112,61 +197,3 @@ angular.module('recipeApp', ['ngSanitize'])
         ;
 
 
-/**
- * Originally found this page: http://programmingthomas.wordpress.com/2012/05/16/drawing-stars-with-html5-canvas/
- * This draws a star using parametrised radius and spike length. I fear that doing all those floating point 
- * calculations could be really slow so I have "pre-rendered" the calculations into this function for a small star.
- * @param {type} ctx
- * @param {type} x
- * @param {type} y
- * @returns {undefined}
- */
-function drawStar(ctx, x, y) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.translate(x, y);
-    ctx.moveTo(0, -10);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -4.5);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -10);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -4.5);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -10);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -4.5);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -10);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -4.5);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -10);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -4.5);
-    ctx.rotate(0.6283185307179586);
-    ctx.lineTo(0, -10);
-    ctx.fill();
-    ctx.restore();
-}
-
-
-function drawStars(starsString, ctx) {
-    ctx.fillStyle = "gold";
-    if (starsString === "4 Sterne") {
-        ctx.fillStyle = "red";
-    }
-    drawStar(ctx, 71, 11);
-    if (starsString === "3 Sterne") {
-        ctx.fillStyle = "red";
-    }
-    drawStar(ctx, 51, 11);
-    if (starsString === "2 Sterne") {
-        ctx.fillStyle = "red";
-    }
-    drawStar(ctx, 31, 11);
-    if (starsString === "1 Stern") {
-        ctx.fillStyle = "red";
-    }
-    drawStar(ctx, 11, 11);
-}
