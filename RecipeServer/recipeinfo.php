@@ -8,7 +8,7 @@
 //  http://localhost/Homepage/recipeinfo.php?startfrom=2000-01-01+00%3A00%3A00
 //  Bash:  php-cgi recipeinfo.php startfrom=2010-01-01+00%3A00%3A00
 
-$dir = "@recipeDirectory@";
+$serverRecipeDir = "@serverRecipeDir@";
 
 class Recipe {
 
@@ -36,9 +36,9 @@ $startFromTime = strtotime ( $startFrom );
 //echo "Local directory: " . $dir;
 
 $recipeFilenamePattern = "/^Rcp\d{3}\.htm$/";
-$myDirectory = opendir ( $dir );
+$myDirectory = opendir ( $serverRecipeDir );
 while ( $entryName = readdir ( $myDirectory ) ) {
-    if ( ( filemtime ( $dir . $entryName ) > $startFromTime ) and ( preg_match ( $recipeFilenamePattern, $entryName ) > 0 ) ) {
+    if ( ( filemtime ( $serverRecipeDir . $entryName ) > $startFromTime ) and ( preg_match ( $recipeFilenamePattern, $entryName ) > 0 ) ) {
         $dirArray[ ] = $entryName;
     }
 }
@@ -56,7 +56,7 @@ foreach ( $dirArray as $filename ) {
     $recipe = new Recipe();
     $recipe->filename = $filename;
 
-    $matches = preg_grep ( $dataPattern, file ( $dir . $filename ) );
+    $matches = preg_grep ( $dataPattern, file ( $serverRecipeDir . $filename ) );
     foreach ( $matches as $match ) {
         if ( preg_match ( $titlePattern, $match, $titleMatchArray ) > 0 ) {
             $recipe->name = $titleMatchArray[ 1 ];

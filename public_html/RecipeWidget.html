@@ -1,0 +1,13 @@
+<div class="col-sm-6 col-md-4 col-lg-3">
+    <div class="thumbnail">
+        
+        <div class="back-img" ng-style="{'background-image': 'url({{recipe.imageFilename}})'}" >
+            <canvas drawstars="recipe"></canvas>
+        </div>
+
+        <div class="caption">
+            <h4 ng-bind-html="recipe.name"></h4>
+            <p><a href="{{recipe.filename}}" class="btn btn-primary" role="button">Open</a></p>
+        </div>
+    </div>
+</div>

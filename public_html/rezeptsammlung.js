@@ -64,7 +64,12 @@ window.onload = function() {
         }
     } );
 
+    var datePopupMenu = getDatePopupMenu();
+    
+    fetchData();
+};
 
+function getDatePopupMenu() {
     // populate the calendar menu items
     var datePopupMenu = document.getElementById( 'datePopupMenu' );
     var ul = datePopupMenu.children[0];
@@ -92,8 +97,8 @@ window.onload = function() {
     var eightdays = new Date( today.getTime() + 8 * 24 * 60 * 60 * 1000 );
     ul.children[8].setAttribute( "data-date", formatDate( eightdays ) );
     ul.children[8].innerHTML = formatWeekdayGerman( eightdays );
-    fetchData();
-};
+    return datePopupMenu;
+}
 
 /**
  *  function to stop the search form submitting and do a search instead
@@ -107,7 +112,7 @@ function processForm( e ) {
 
 
 /**
- * Checks if the data is already in the localStorage or whther there are new recipes
+ * Checks if the data is already in the localStorage or whether there are new recipes
  * on the server that necessitate a fresh download.
  * @returns {undefined}
  */

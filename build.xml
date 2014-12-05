@@ -7,9 +7,7 @@
     <target name="pushAll" depends="cleanup" description="Push to all locations">
         <antcall target="pushLocalhost" />
         <antcall target="pushSourceforge" /> 
-        <!-- <antcall target="pushWarrior" /> -->
-        <!-- <antcall target="pushKatana" /> -->
-        <antcall target="pushLomumba" />
+        <antcall target="pushGladius" />
     </target>   	
     
     <target name="pushLocalhost" depends="checkroot, cleanup" description="Pushes the files to the Localhost">
@@ -30,6 +28,8 @@
         <property name="serverRoot" value="http://richieigenmann.users.sourceforge.net"/>
         <property name="enumerationUrl" value="${serverRoot}/recipeinfo.php"/>
         <property name="recipesRoot" value="${serverRoot}"/>
+        <!-- <property name="serverRecipeDir" value="/home/users/r/ri/richieigenmann/userweb/htdocs"/> -->
+        <property name="serverRecipeDir" value="./"/>
         
         <antcall target="mountSshFs" />
         <antcall target="pushFiles" />
@@ -37,44 +37,21 @@
     </target>
 
 
-    <target name="pushWarrior" depends="checkroot, cleanup" description="Pushes the files to Warrior using sshfs">
-        <property name="sshDrive" value="root@warrior:/srv/www/htdocs/Homepage" />
-        <property name="targetRoot" value="/mnt" />
-        <antcall target="mountSshFs" />
-        <antcall target="pushFiles" />
-        <antcall target="unmountFs" />
-    </target>
 
-
-
-    <target name="pushKatana" depends="checkroot, cleanup" description="Pushes the files to Katana using sshfs">
-        <property name="sshDrive" value="root@katana:/srv/www/htdocs/Homepage" />
+    <target name="pushGladius" depends="checkroot, cleanup" description="Pushes the files to Gladius using sshfs">
+        <property name="sshDrive" value="root@gladius:/srv/www/htdocs/Homepage" />
         <property name="targetRoot" value="/mnt" />
         
-        <property name="serverRoot" value="http://katana/"/>
+        <property name="serverRoot" value="http://gladius/"/>
         <property name="enumerationUrl" value="${serverRoot}Homepage/recipeinfo.php"/>
         <property name="recipesRoot" value="${serverRoot}Homepage/"/>
+        <property name="serverRecipeDir" value="/srv/www/htdocs/Homepage/"/>
         
         <antcall target="mountSshFs" />
         <antcall target="pushFiles" />
         <antcall target="unmountFs" />
     </target>
 
-
-    <target name="pushLomumba" depends="checkroot, cleanup" description="Pushes the files to Lomumba using sshfs">
-        <property name="sshDrive" value="root@pat.lomumba.ch:/www/lomumba/phpwcms/richi/" />
-        <property name="targetRoot" value="/mnt" />
-
-        <property name="serverRoot" value="http://pat.lomumba.ch/richi/"/>
-        <property name="enumerationUrl" value="${serverRoot}recipeinfo.php"/>
-        <property name="recipesRoot" value="${serverRoot}"/>
-        
-        <antcall target="mountSshFs">
-            <param name="sshPort" value="-p11222"/>
-        </antcall>
-        <antcall target="pushFiles" />
-        <antcall target="unmountFs" />
-    </target>
 
     <target name="cleanup" description="Deletes the ~ files that quanta creates" >
         <delete verbose="${TALK}">
@@ -94,6 +71,13 @@
         <copy todir="${targetRoot}" verbose="yes">
             <fileset dir="public_html" includes="*jpg, *png"/>
         </copy> 
-
+        <copy todir="${targetRoot}" verbose="yes">
+            <fileset dir="RecipeServer" includes="*php"/>
+            <filterset>
+                <filter token="serverRecipeDir" value="${serverRecipeDir}"/>
+            </filterset>
+        </copy> 
     </target>
+    
+        
 </project>
