@@ -1,0 +1,11 @@
+{
+    "elements": {
+        "drawstars": {
+            "attributes": {
+                "maxstars": {},
+                "stars": {}
+            }
+        }
+    },
+    "attributes": {}
+}

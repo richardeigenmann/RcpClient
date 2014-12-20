@@ -2,12 +2,13 @@ var SERVER_LAST_MODIFIED_URL = 'lastRecipeModified.json';
 var SERVER_RECIPES_URL = 'recipes.json';
 
 
-angular.module('recipeApp', ['ngSanitize', 'ngRoute'])
+angular.module('recipeApp', ['ngSanitize', 'ngRoute','drawStars'])
         .factory('applicationDataFactory', [function applicationDataFactory() {
                 var allRecipes = {"RcpAbpout.htm": {"filename": "RcpAbpout.htm",
                         "name": "Richard Eigenmann Rezeptsammlung",
                         "imageFilename": "Rcp120.jpg",
                         "width": "400", "height": "368",
+                        "stars": "4",
                         "categories": {"Bewertung": ["4 Sterne"],
                             "Quelle": ["Richard Eigenmann"]}}};
                 var selectedRecipes = allRecipes;
@@ -39,7 +40,7 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute'])
                 }
 
                 function filter(category, type) {
-                    console.log("Filter on: " + category + " " + type);
+                    //console.log("Filter on: " + category + " " + type);
                     var categoryObject = index[category];
                     if (typeof categoryObject === 'undefined') {
                         console.log("index[" + category + "] still no good. Kill it...");
@@ -302,80 +303,6 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute'])
                 };
             }
         ])
-        .directive("drawstars", function () {
-
-            /**
-             * Originally found this page: http://programmingthomas.wordpress.com/2012/05/16/drawing-stars-with-html5-canvas/
-             * This draws a star using parametrised radius and spike length. I fear that doing all those floating point 
-             * calculations could be really slow so I have "pre-rendered" the calculations into this function for a small star.
-             * @param {type} ctx
-             * @param {type} x
-             * @param {type} y
-             * @returns {undefined}
-             */
-            function drawStar(ctx, x, y) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.translate(x, y);
-                ctx.moveTo(0, -10);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -4.5);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -10);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -4.5);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -10);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -4.5);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -10);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -4.5);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -10);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -4.5);
-                ctx.rotate(0.6283185307179586);
-                ctx.lineTo(0, -10);
-                ctx.fill();
-                ctx.restore();
-            }
-
-
-            function drawStars(starsString, ctx) {
-                ctx.fillStyle = "gold";
-                if (starsString === "4 Sterne") {
-                    ctx.fillStyle = "red";
-                }
-                drawStar(ctx, 71, 11);
-                if (starsString === "3 Sterne") {
-                    ctx.fillStyle = "red";
-                }
-                drawStar(ctx, 51, 11);
-                if (starsString === "2 Sterne") {
-                    ctx.fillStyle = "red";
-                }
-                drawStar(ctx, 31, 11);
-                if (starsString === "1 Stern") {
-                    ctx.fillStyle = "red";
-                }
-                drawStar(ctx, 11, 11);
-            }
-
-            return {
-                restrict: "A",
-                scope: {
-                    // the recipe is inherited from the parent scope so I
-                    // could leave it off but I am trying to make things explicit
-                    recipe: '=drawstars',
-                },
-                link: function (scope, element) {
-                    var ctx = element[0].getContext('2d');
-                    drawStars(scope.recipe.categories.Bewertung[0], ctx);
-                }
-            };
-        })
 
         ;
 

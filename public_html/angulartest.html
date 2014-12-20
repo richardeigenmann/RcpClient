@@ -55,15 +55,15 @@
                     </div><!-- /.navbar-collapse -->
                 </nav>
 
-                <span class="label label-primary">Showing {{RecipeCtrl.results}} recipes</span>
-
+                <span class="label label-primary">Showing {{RecipeCtrl.results}} recipes</span><br>
+                <span class="label label-primary">{{RecipeCtrl.loaderStatus}}</span>
                 <div ng-view></div>
 
                 <div ng-repeat="recipe in RecipeCtrl.recipes" >
                     <recipe-widget recipe="recipe"></recipe-widget>
                 </div>
 
-                <span class="label label-primary">{{RecipeCtrl.loaderStatus}}</span>
+                
 
             </div>
         </div>
@@ -73,6 +73,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-sanitize.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular-route.js"></script>
+        <script src="drawStars.js"></script>
         <script src="angulartest.js"></script>
     </body>
 </html>

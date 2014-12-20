@@ -50,6 +50,10 @@ foreach ($dirArray as $filename) {
                 $recipe->categories[$metaMatchArray[1]] = array();
             }
             array_push($recipe->categories[$metaMatchArray[1]], $metaMatchArray[2]);
+            // create a numeric index for the stars
+            if ($metaMatchArray[1] == "Bewertung" ) {
+                $recipe->stars = substr($metaMatchArray[2],0,1);
+            }
         } elseif (preg_match($imgPattern, $match, $imgMatchArray) > 0) {
             $recipe->imageFilename = $imgMatchArray[1];
             $recipe->width = $imgMatchArray[2];
