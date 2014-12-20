@@ -226,7 +226,7 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute'])
                 };
             }
         ])
-        .controller('routeCtrl', ['$scope', '$route', '$routeParams', 'applicationDataFactory', function ($scope, $route, $routeParams, applicationDataFactory) {
+        .controller('RouteController', ['$scope', '$route', '$routeParams', 'applicationDataFactory', function ($scope, $route, $routeParams, applicationDataFactory) {
                 this.category = $routeParams.category;
                 $scope.category = $routeParams.category;
                 this.type = $routeParams.type;
@@ -240,24 +240,13 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute'])
                     controller: ['$routeParams', 'applicationDataFactory', function ($routeParams, applicationDataFactory) {
                             applicationDataFactory.unfilterRecipes();
                         }],
-                    controllerAs: 'routeCtrl'
+                    controllerAs: 'RouteController'
 
                 })
-                        .when('/xxxxcategory/:xxxxcategory/:type', {
-                            template: '<h5>xxxWe are on a route: /{{routeCtrl.category}}/{{routeCtrl.type}}</h5>',
-                            controller: ['$routeParams', 'applicationDataFactory', function ($routeParams, applicationDataFactory) {
-                                    this.category = $routeParams.category;
-                                    this.type = $routeParams.type;
-                                    applicationDataFactory.filterRecipes(this.category, this.type);
-
-                                },
-                            ],
-                            controllerAs: 'routeCtrl',
-                        })
                         .when('/category/:category/:type', {
                             template: '<h5>We are on a route: /{{category}}/{{type}}</h5>',
-                            controller: 'routeCtrl',
-                            controllerAs: 'routeCtrl',
+                            controller: 'RouteController',
+                            controllerAs: 'RouteController',
                             resolve: {
                                 message: function (recipeLoaderFactory) {
                                     return recipeLoaderFactory.getResolved();
@@ -267,8 +256,8 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute'])
 
                         .otherwise({redirectTo: '/'});
             }])
-        .controller('recipeController', ['applicationDataFactory', 'recipeLoaderFactory', '$scope',
-            function recipeController(applicationDataFactory, recipeLoaderFactory, $scope) {
+        .controller('RecipeController', ['applicationDataFactory', 'recipeLoaderFactory', '$scope',
+            function RecipeController(applicationDataFactory, recipeLoaderFactory, $scope) {
                 var self = this;
                 self.results = 0;
 
