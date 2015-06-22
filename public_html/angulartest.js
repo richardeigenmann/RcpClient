@@ -2,7 +2,7 @@ var SERVER_LAST_MODIFIED_URL = 'lastRecipeModified.json';
 var SERVER_RECIPES_URL = 'recipes.json';
 
 
-angular.module('recipeApp', ['ngSanitize', 'ngRoute','drawStars'])
+angular.module('recipeApp', ['ngSanitize', 'ngRoute', 'drawStars'])
         .factory('applicationDataFactory', [function applicationDataFactory() {
                 var allRecipes = {"RcpAbpout.htm": {"filename": "RcpAbpout.htm",
                         "name": "Richard Eigenmann Rezeptsammlung",
@@ -40,7 +40,7 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute','drawStars'])
                 }
 
                 function filter(category, type) {
-                    //console.log("Filter on: " + category + " " + type);
+                    console.log("Filter on: " + category + " " + type);
                     var categoryObject = index[category];
                     if (typeof categoryObject === 'undefined') {
                         console.log("index[" + category + "] still no good. Kill it...");
@@ -147,6 +147,22 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute','drawStars'])
                     },
                     setAllRecipes: function (newAllRecipes) {
                         allRecipes = newAllRecipes;
+
+                        var db;
+                        var request = window.indexedDB.open("RecipeCollection", 1);
+                        request.onerror = function (event) {
+                            console.log("error on open indexDB request: " + event.target.errorCode);
+                        };
+                        request.onupgradeneeded = function (event) {
+                            console.log("onupgradeneeded fired");
+                            var db = event.target.result;
+                            var objectStore = db.createObjectStore("name", {keyPath: "myKey"});
+                        }
+                        request.onsuccess = function (event) {
+                            console.log("Success on open indexDB request");
+                            db = event.target.result;
+                        };
+
                         buildCategories();
                         unfilter(); // Should this be the responsibility of a setter? But it belongs even less to the loader.
                     },
@@ -177,6 +193,9 @@ angular.module('recipeApp', ['ngSanitize', 'ngRoute','drawStars'])
          */
         .factory('recipeLoaderFactory', ['$http', 'applicationDataFactory', '$q',
             function lastDateFactory($http, applicationDataFactory, $q) {
+                if (!window.indexedDB) {
+                    window.alert("Your browser doesn't support a stable version of IndexedDB. The website will not work properly.");
+                }
                 var loaderStatus = "Loader starting up...";
                 var deferred = $q.defer();
                 //localStorage.removeItem("lastModifiedDate");

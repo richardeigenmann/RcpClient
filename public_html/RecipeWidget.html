@@ -2,12 +2,12 @@
     <div class="thumbnail">
         
         <div class="back-img" ng-style="{'background-image': 'url({{recipe.imageFilename}})'}" >
-            <drawstars stars="recipe.stars"></drawstars>
+            <drawstars highlightstars="{{recipe.stars}}" maxstars="4"></drawstars>
         </div>
 
         <div class="caption">
             <h4 ng-bind-html="recipe.name"></h4>
-            <p><a href="{{recipe.filename}}" class="btn btn-primary" role="button">Open</a><drawstars stars="recipe.stars"></drawstars></p>
+            <p><a href="{{recipe.filename}}" class="btn btn-primary" role="button">Open</a><drawstars highlightstars="{{recipe.stars}}" maxstars="4"></drawstars></p>
         </div>
     </div>
 </div>
