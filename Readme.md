@@ -29,4 +29,4 @@ http://richieigenmann.users.sourceforge.net/rezeptsammlung.html
 
 http://gladius/Homepage/angulartest.html
 
-http://richieigenmann.users.sourceforge.net/angulartest.html
+http://richieigenmann.users.sourceforge.net/rezeptsammlung.html
