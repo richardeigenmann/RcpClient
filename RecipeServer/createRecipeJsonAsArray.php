@@ -6,9 +6,9 @@
 
 // zypper in php5-fastcgi
 
-//  http://richieigenmann.users.sourceforge.net/createRecipeJson.php?startfrom=2000-01-01+00%3A00%3A00
-//  http://localhost/Homepage/createRecipeJson.php?startfrom=2000-01-01+00%3A00%3A00
-//  Bash:  php-cgi createRecipeJson.php
+//  http://richieigenmann.users.sourceforge.net/createRecipeJsonAsArray.php
+//  http://localhost/Homepage/createRecipeJsonAsArray.php
+//  Bash:  php-cgi createRecipeJsonAsArray.php
 
 $serverRecipeDir = "/richi/Src/Rezeptsammlung/";
 
@@ -63,7 +63,7 @@ foreach ($dirArray as $filename) {
             $recipe->height = $imgMatchArray[3];
         }
     }
-    $recipes[$recipe->filename] = $recipe;
+    $recipes[] = $recipe;
 }
 
 echo json_encode($recipes);
